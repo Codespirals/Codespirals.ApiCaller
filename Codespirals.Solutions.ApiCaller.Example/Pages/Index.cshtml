@@ -1,0 +1,14 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <h2>Here's a cat fact:</h2>
+    <p>@Model.CatFact</p>
+</div>
+<div class="text-center source">
+    All cat facts from the cat fact api @@ https://catfact.ninja
+</div>

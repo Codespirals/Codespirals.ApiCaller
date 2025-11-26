@@ -1,0 +1,62 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <Title>$(AssemblyName)</Title>
+    <Version>0.4.100.25329</Version>
+    <Description>An easily implementable service to call an API with.</Description>
+    <PackageReadmeFile>
+    </PackageReadmeFile>
+    <RepositoryUrl>https://github.com/Codespirals/Codespirals.Solutions.ApiCaller</RepositoryUrl>
+    <PackageTags>codespirals; api; service;</PackageTags>
+    <PackageOutputPath>$(OneDrive)\NuGet</PackageOutputPath>
+    <NeutralLanguage>en</NeutralLanguage>
+    <PackageLicenseExpression>CC0-1.0</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Authors>codespirals</Authors>
+    <Copyright>$(Company)</Copyright>
+    <PackageIcon>logo.png</PackageIcon>
+    <PackageProjectUrl>https://codespirals.dev/</PackageProjectUrl>
+    <Company>codespirals</Company>
+    <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
+    <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <NoWarn>1701;1702;IDE0130;</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <NoWarn>1701;1702;IDE0130;</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="..\..\Codespirals.Base\Codespirals.Base.Shared\Resources\Images\logo.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Codespirals.Base.Shared" Version="1.0.149.25305" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.10" />
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="Codespirals.Base" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Resources\DefaultText.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>DefaultText.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Update="Resources\DefaultText.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>DefaultText.Designer.cs</LastGenOutput>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+  </ItemGroup>
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="PowerShell -ExecutionPolicy Bypass -NoProfile -File AutoUpdateVersionNumber.ps1" />
+  </Target>
+</Project>
