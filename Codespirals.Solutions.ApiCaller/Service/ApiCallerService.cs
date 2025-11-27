@@ -79,20 +79,20 @@ public class ApiCallerService : IApiCallerService
     internal string BuildRequestUrl(string slug = "", params List<KeyValuePair<string, string>> queryParameters)
     {
         slug = slug.Trim(' ', '/', '\\', '-', '_', '?');
-        if (slug.Length > 0)
-            slug = $"/{slug}";
         bool addAmpersand = false;
-        StringBuilder parameterStringBuilder = new("?");
-        foreach (KeyValuePair<string, string> parameter in queryParameters)
+        var parameterString = "";
+        if (queryParameters.Count != 0)
         {
-            if (addAmpersand)
-                parameterStringBuilder.Append('&');
-            parameterStringBuilder.Append(parameter.Key);
-            parameterStringBuilder.Append('=');
-            parameterStringBuilder.Append(parameter.Value);
-            addAmpersand = true;
+            StringBuilder parameterStringBuilder = new('?');
+            foreach (KeyValuePair<string, string> parameter in queryParameters)
+            {
+                if (addAmpersand)
+                    parameterStringBuilder.Append('&');
+                parameterStringBuilder = parameterStringBuilder.Append(parameter.Key).Append('=').Append(parameter.Value);
+                addAmpersand = true;
+            }
+            parameterString = parameterStringBuilder.ToString();
         }
-        string parameterString = parameterStringBuilder.ToString();
         return $"{_httpClient.BaseAddress}{slug}{parameterString}";
     }
     /// <inheritdoc/>

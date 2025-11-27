@@ -15,5 +15,4 @@ namespace Codespirals.ApiCaller.Example
         {
         }
     }
-
 }

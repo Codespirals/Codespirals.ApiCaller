@@ -1,3 +1,4 @@
+using Codespirals.Solutions.ApiCaller.Example;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace Codespirals.ApiCaller.Example
