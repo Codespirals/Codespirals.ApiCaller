@@ -8,7 +8,7 @@ namespace Codespirals.Solutions.ApiCaller
         /// <summary>
         /// Add an api service to your service collection
         /// </summary>
-        /// <param name="serviceKey">The name of your api - your settings section must be named the same. If left empty, name the settings section <see cref="ApiCallerService"/>.</param>
+        /// <param name="serviceKey">The name of your api - your settings section must be named the same. If left empty, name the settings section "<see cref="ApiCallerService"/>".</param>
         /// <param name="configuration">The settings that contains the specific settings for this service.</param>
         public static void AddApiCaller(this IServiceCollection services, string? serviceKey = null, IConfiguration? configuration = null)
         {
