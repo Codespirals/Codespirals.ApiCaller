@@ -30,6 +30,13 @@
     <NoWarn>1701;1702;IDE0130;</NoWarn>
   </PropertyGroup>
   <ItemGroup>
+    <Content Include="appsettings.json.example">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
     <None Include="..\..\Codespirals.Base\Codespirals.Base.Shared\Resources\Images\logo.png">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>

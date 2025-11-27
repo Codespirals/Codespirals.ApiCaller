@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
 
 namespace Codespirals.Solutions.ApiCaller
 {
@@ -10,21 +11,31 @@ namespace Codespirals.Solutions.ApiCaller
         /// </summary>
         /// <param name="serviceKey">The name of your api - your settings section must be named the same. If left empty, name the settings section "<see cref="ApiCallerService"/>".</param>
         /// <param name="configuration">The settings that contains the specific settings for this service.</param>
-        public static void AddApiCaller(this IServiceCollection services, string? serviceKey = null, IConfiguration? configuration = null)
+        public static void AddApiCallerServices(this IServiceCollection services, IConfiguration? configuration = null)
         {
-            if (string.IsNullOrWhiteSpace(serviceKey))
+            // TODO: Determine if config is needed or only env variable will do
+            var apiCallerServices = AppDomain.CurrentDomain.GetAssemblies().SelectMany(a => a.GetTypes()
+                .Where(t => !t.IsAbstract
+                && t.GetCustomAttribute<RequiredInjectableService>() is not null
+                && t.GetCustomAttribute<RequiredInjectableService>()?.Service == typeof(ApiCallerService)));
+
+            foreach (var service in apiCallerServices)
             {
-                services.AddScoped<IApiCallerService, ApiCallerService>();
-                serviceKey = nameof(ApiCallerService);
-            }
-            else
-            {
-                services.AddKeyedScoped<IApiCallerService, ApiCallerService>(serviceKey);
-            }
-            if (configuration is not null)
-            {
-                IConfigurationSection configSection = configuration.GetSection(serviceKey);
-                services.Configure<ApiOptions>(configSection);
+                var attribute = service.GetCustomAttribute<RequiredInjectableService>();
+                if (services.Any(s => s.ServiceType == typeof(ApiCallerService) && s.ServiceKey?.ToString() == attribute?.Key))
+                    continue;
+
+                if (string.IsNullOrWhiteSpace(attribute?.Key))
+                    services.AddScoped<IApiCallerService, ApiCallerService>();
+                else
+                {
+                    services.AddKeyedScoped<IApiCallerService, ApiCallerService>(attribute?.Key);
+                }
+                if (configuration is not null)
+                {
+                    IConfigurationSection configSection = configuration.GetSection(attribute?.Key ?? nameof(ApiCallerService));
+                    services.Configure<ApiOptions>(configSection);
+                }
             }
         }
     }
