@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using System.Reflection;
 
 namespace Codespirals.Solutions.ApiCaller
@@ -7,13 +8,11 @@ namespace Codespirals.Solutions.ApiCaller
     public static class ServiceCollectionExtensions
     {
         /// <summary>
-        /// Add an api service to your service collection
+        /// Add all api caller services from other services that are attributed with <see cref="RequiredConfigurationSetting"/> to your service collection
         /// </summary>
-        /// <param name="serviceKey">The name of your api - your settings section must be named the same. If left empty, name the settings section "<see cref="ApiCallerService"/>".</param>
-        /// <param name="configuration">The settings that contains the specific settings for this service.</param>
-        public static void AddApiCallerServices(this IServiceCollection services, IConfiguration? configuration = null)
+        /// <param name="configuration">The settings that contains the specific settings for the services.</param>
+        public static void AddAttributedApiCallerServices(this IServiceCollection services, IConfiguration configuration)
         {
-            // TODO: Determine if config is needed or only env variable will do
             var apiCallerServices = AppDomain.CurrentDomain.GetAssemblies().SelectMany(a => a.GetTypes()
                 .Where(t => !t.IsAbstract
                 && t.GetCustomAttribute<RequiredInjectableService>() is not null
@@ -21,22 +20,25 @@ namespace Codespirals.Solutions.ApiCaller
 
             foreach (var service in apiCallerServices)
             {
+                if (service is null)
+                    continue;
                 var attribute = service.GetCustomAttribute<RequiredInjectableService>();
                 if (services.Any(s => s.ServiceType == typeof(ApiCallerService) && s.ServiceKey?.ToString() == attribute?.Key))
                     continue;
 
-                if (string.IsNullOrWhiteSpace(attribute?.Key))
-                    services.AddScoped<IApiCallerService, ApiCallerService>();
-                else
-                {
-                    services.AddKeyedScoped<IApiCallerService, ApiCallerService>(attribute?.Key);
-                }
-                if (configuration is not null)
-                {
-                    IConfigurationSection configSection = configuration.GetSection(attribute?.Key ?? nameof(ApiCallerService));
-                    services.Configure<ApiOptions>(configSection);
-                }
+                services.TryAddAttributedService(service, attribute?.Lifetime, attribute?.Key, configuration);
             }
+        }
+        /// <summary>
+        /// Add an api caller service 
+        /// </summary>
+        /// <param name="services"></param>
+        /// <param name="configuration"></param>
+        /// <param name="lifetime"></param>
+        public static void AddApiCallerService(this IServiceCollection services, IConfiguration configuration, ServiceLifetime lifetime = ServiceLifetime.Transient)
+        {
+            services.Configure<ApiCallerOptions>(configuration);
+            services.TryAdd(new ServiceDescriptor(typeof(IApiCallerService), typeof(ApiCallerService), lifetime));
         }
     }
 }

@@ -2,9 +2,9 @@
 
 namespace Codespirals.Solutions.ApiCaller
 {
-    /// <inheritdoc cref="IApiOptions"/>
+    /// <inheritdoc cref="IApiCallerOptions"/>
     [ServiceOptions(typeof(ApiCallerService))]
-    public record ApiOptions : IApiOptions
+    public sealed class ApiCallerOptions : IApiCallerOptions
     {
         /// <inheritdoc/>
         public string Name { get; set; } = string.Empty;

@@ -4,7 +4,7 @@ namespace Codespirals.Solutions.ApiCaller;
 /// <summary>
 /// The options necessary to set for this Api implementation to work properly
 /// </summary>
-public interface IApiOptions : INameable
+public interface IApiCallerOptions : INameable
 {
     /// <summary>
     /// The base url of the API to be called

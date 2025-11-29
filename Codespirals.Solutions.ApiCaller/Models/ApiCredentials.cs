@@ -3,7 +3,7 @@
     /// <summary>
     /// The credentials that get sent in the header of every API request
     /// </summary>
-    public record ApiCredentials
+    public sealed class ApiCredentials
     {
         /// <summary>
         /// What the key or password token is named (e.g. "[MyApp]_Key") and the value of the token

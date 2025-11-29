@@ -1,5 +1,4 @@
-﻿using Codespirals.Solutions.ApiCaller.Resources;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Net;
@@ -15,9 +14,8 @@ namespace Codespirals.Solutions.ApiCaller;
 /// The API service to send requests to the API
 /// </remarks>
 /// <param name="logger">The logger</param>
-[InjectableService(typeof(IApiCallerService), ServiceLifetime.Transient, isKeyed: true, optionType: typeof(ApiOptions))]
-[RequiredConfigurationSetting(nameof(ApiOptions.BaseAddress))]
-[RequiredInjectableService(typeof(ILogger))]
+[InjectableService(typeof(IApiCallerService), defaultLifetime: ServiceLifetime.Transient, optionType: typeof(ApiCallerOptions))]
+[RequiredConfigurationSetting(nameof(ApiCallerOptions.BaseAddress))]
 public class ApiCallerService : IApiCallerService
 {
     private readonly HttpClient _httpClient;
@@ -31,7 +29,7 @@ public class ApiCallerService : IApiCallerService
     /// The API service to send requests to the API
     /// </summary>
     /// <param name="logger">The logger</param>
-    public ApiCallerService(ILogger<ApiCallerService> logger, IOptions<ApiOptions> options)
+    public ApiCallerService(ILogger<ApiCallerService> logger, IOptions<ApiCallerOptions> options)
     {
         _logger = logger;
         BaseUrl = options.Value.BaseAddress;
@@ -46,7 +44,7 @@ public class ApiCallerService : IApiCallerService
             }
             catch (Exception)
             {
-                Name = DefaultText.DefaultApiName;
+                Name = nameof(ApiCallerService);
             }
         }
         else
