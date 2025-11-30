@@ -35,5 +35,7 @@ namespace Codespirals.Solutions.ApiCaller
             => new(statusCode, error, errorCode);
         public static ApiListResult<TData> Ok(HttpStatusCode statusCode, IEnumerable<TData> data)
             => new(statusCode, data);
+        public static ApiListResult<TData> Ok(IEnumerable<TData> data) => Ok(HttpStatusCode.OK, data);
+        public static ApiListResult<TData> Short(IResult<string> result) => Fail(result.Error, result.ErrorCode);
     }
 }

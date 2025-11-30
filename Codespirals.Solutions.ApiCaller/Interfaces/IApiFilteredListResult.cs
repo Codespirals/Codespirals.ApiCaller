@@ -1,13 +1,14 @@
 ﻿using System.Net;
 
 namespace Codespirals.Solutions.ApiCaller;
-public interface IApiFilteredListResult<TSelf, TFilter, TData> : IFilteredListResult<TSelf, string, TFilter, TData>
-    where TSelf : IApiFilteredListResult<TSelf, TFilter, TData>
+public interface IApiFilteredListResult<TSelf, TData, TFilter> : IApiResult<TSelf>, IFilteredListResult<TSelf, string, TData, TFilter>
+    where TSelf : IApiFilteredListResult<TSelf, TData, TFilter>
     where TFilter : IFilterParameters
 {
-    HttpStatusCode StatusCode { get; }
-
-    static abstract TSelf Ok(TFilter filter, HttpStatusCode statusCode, IEnumerable<TData> formattedData, int totalResults);
-    static abstract TSelf OkAndFormat(TFilter filter, HttpStatusCode statusCode, IEnumerable<TData> unformattedData);
-    static abstract TSelf Fail(TFilter filter, HttpStatusCode statusCode, string error, string? errorCode = default);
+    /// <inheritdoc />
+    static abstract TSelf Ok(IEnumerable<TData> formattedData, TFilter filter, int totalResults, HttpStatusCode statusCode = HttpStatusCode.OK);
+    /// <inheritdoc />
+    static abstract TSelf OkAndFormat(IEnumerable<TData> unformattedData, TFilter filter, HttpStatusCode statusCode = HttpStatusCode.OK);
+    /// <inheritdoc />
+    static abstract TSelf Fail(TFilter filter, string error, string? errorCode = null, HttpStatusCode statusCode = HttpStatusCode.BadRequest);
 }

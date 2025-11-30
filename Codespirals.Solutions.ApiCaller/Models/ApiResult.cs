@@ -4,35 +4,37 @@ namespace Codespirals.Solutions.ApiCaller
 {
     public record ApiResult : IApiResult<ApiResult>
     {
+        /// <inheritdoc cref="IApiResult{TSelf}.StatusCode"/>
         public HttpStatusCode StatusCode { get; } = HttpStatusCode.Ambiguous;
+        /// <inheritdoc cref="IResult{TErrorCode}.Success"/>
         public bool Success { get; }
+        /// <inheritdoc cref="IResult{TErrorCode}.ErrorCode"/>
         public string? ErrorCode { get; }
-        /// <inheritdoc />
+        /// <inheritdoc cref="IResult{TErrorCode}.Error"/>
         public string Error { get; } = "";
 
         private ApiResult(HttpStatusCode statusCode)
         {
+            Success = true;
             StatusCode = statusCode;
         }
-        private ApiResult(string error, string? errorCode)
+        private ApiResult(string error, string? errorCode, HttpStatusCode statusCode = HttpStatusCode.BadRequest)
         {
             Success = false;
-            Error = error;
-            ErrorCode = errorCode;
-        }
-        private ApiResult(HttpStatusCode statusCode, string error, string? errorCode) : this(statusCode)
-        {
-            Success = false;
+            StatusCode = statusCode;
             Error = error;
             ErrorCode = errorCode;
         }
 
-        public static ApiResult Fail(HttpStatusCode statusCode, string error, string? errorCode = null)
-            => new(statusCode, error, errorCode);
+        /// <inheritdoc cref="IResult{TSelf, TErrorCode}.Fail(string, TErrorCode?)"/>
+        public static ApiResult Fail(string error, string? errorCode = null, HttpStatusCode statusCode = HttpStatusCode.BadRequest)
+            => new(error, errorCode, statusCode);
+        /// <inheritdoc cref="IResult{TSelf, TErrorCode}.Fail(string, TErrorCode?)"/>
         public static ApiResult Fail(string error, string? errorCode = null)
-            => new(error, errorCode);
+            => new(error, errorCode, HttpStatusCode.BadRequest);
         public static ApiResult Ok(HttpStatusCode statusCode)
             => new(statusCode);
+        public static ApiResult Short(IResult<string> result) => Fail(result.Error, result.ErrorCode);
     }
 
     public record ApiResult<TData> : IApiResult<ApiResult<TData>, TData>
@@ -45,35 +47,27 @@ namespace Codespirals.Solutions.ApiCaller
         /// <inheritdoc />
         public string Error { get; } = "";
 
-        private ApiResult(HttpStatusCode statusCode)
-        {
-            StatusCode = statusCode;
-        }
-        private ApiResult(HttpStatusCode statusCode, TData data) : this(statusCode)
+        private ApiResult(TData data, HttpStatusCode statusCode)
         {
             Success = true;
+            StatusCode = statusCode;
             Data = data;
         }
-        private ApiResult(string error, string? errorCode)
+        private ApiResult(string error, string? errorCode, HttpStatusCode statusCode)
         {
             Success = false;
-            Error = error;
-            ErrorCode = errorCode;
-        }
-        private ApiResult(HttpStatusCode statusCode, string error, string? errorCode) : this(statusCode)
-        {
-            Success = false;
+            StatusCode = statusCode;
             Error = error;
             ErrorCode = errorCode;
         }
 
-        public static ApiResult<TData> Fail(HttpStatusCode statusCode, string error, string? errorCode = null)
-            => new(statusCode, error, errorCode);
+        public static ApiResult<TData> Ok(TData data, HttpStatusCode statusCode)
+            => new(data, statusCode);
+        public static ApiResult<TData> Ok(TData data) => Ok(data, HttpStatusCode.OK);
+        public static ApiResult<TData> Fail(string error, string? errorCode = null, HttpStatusCode statusCode = HttpStatusCode.BadRequest)
+            => new(error, errorCode, statusCode);
         public static ApiResult<TData> Fail(string error, string? errorCode = null)
-            => new(error, errorCode);
-        public static ApiResult<TData> Ok(HttpStatusCode statusCode)
-            => new(statusCode);
-        public static ApiResult<TData> Ok(HttpStatusCode statusCode, TData data)
-            => new(statusCode, data);
+            => Fail(error, errorCode, HttpStatusCode.BadRequest);
+        public static ApiResult<TData> Short(IResult<string> result) => Fail(result.Error, result.ErrorCode);
     }
 }
