@@ -2,7 +2,7 @@
 
 namespace Codespirals.Solutions.ApiCaller
 {
-    internal static class LoggingExtensions
+    internal static class ApiLoggingExtensions
     {
         internal static IDisposable? BeginLoggingApiCall(this ILogger logger, string httpMethod, string baseUrl, string? slug = "")
         {

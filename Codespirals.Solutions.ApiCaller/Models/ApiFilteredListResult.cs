@@ -1,4 +1,6 @@
-﻿using System.Net;
+﻿using Codespirals.Base.Filtering;
+using Codespirals.Base.Results;
+using System.Net;
 
 namespace Codespirals.Solutions.ApiCaller
 {

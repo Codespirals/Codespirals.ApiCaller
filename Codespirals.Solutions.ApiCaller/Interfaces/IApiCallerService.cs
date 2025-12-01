@@ -1,4 +1,5 @@
-﻿using System.Net.Http.Headers;
+﻿using Codespirals.Base.Filtering;
+using System.Net.Http.Headers;
 
 namespace Codespirals.Solutions.ApiCaller;
 /// <summary>

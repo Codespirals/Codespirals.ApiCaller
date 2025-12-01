@@ -1,4 +1,6 @@
-﻿namespace Codespirals.Solutions.ApiCaller;
+﻿using Codespirals.Base.Filtering;
+
+namespace Codespirals.Solutions.ApiCaller;
 internal static class QueryParameterExtensions
 {
     internal static void AddFilterParameters<TFilterParameters>(this List<KeyValuePair<string, string>> queryParameters, TFilterParameters filterParameters)

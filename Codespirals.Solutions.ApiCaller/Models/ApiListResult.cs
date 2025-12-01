@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using Codespirals.Base.Results;
+using System.Net;
 
 namespace Codespirals.Solutions.ApiCaller
 {
