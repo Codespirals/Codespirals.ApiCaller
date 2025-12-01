@@ -29,9 +29,6 @@ namespace Codespirals.Solutions.ApiCaller
         /// <inheritdoc cref="IResult{TSelf, TErrorCode}.Fail(string, TErrorCode?)"/>
         public static ApiResult Fail(string error, string? errorCode = null, HttpStatusCode statusCode = HttpStatusCode.BadRequest)
             => new(error, errorCode, statusCode);
-        /// <inheritdoc cref="IResult{TSelf, TErrorCode}.Fail(string, TErrorCode?)"/>
-        public static ApiResult Fail(string error, string? errorCode = null)
-            => new(error, errorCode, HttpStatusCode.BadRequest);
         public static ApiResult Ok(HttpStatusCode statusCode)
             => new(statusCode);
         public static ApiResult Short(IResult<string> result) => Fail(result.Error, result.ErrorCode);
@@ -66,8 +63,6 @@ namespace Codespirals.Solutions.ApiCaller
         public static ApiResult<TData> Ok(TData data) => Ok(data, HttpStatusCode.OK);
         public static ApiResult<TData> Fail(string error, string? errorCode = null, HttpStatusCode statusCode = HttpStatusCode.BadRequest)
             => new(error, errorCode, statusCode);
-        public static ApiResult<TData> Fail(string error, string? errorCode = null)
-            => Fail(error, errorCode, HttpStatusCode.BadRequest);
         public static ApiResult<TData> Short(IResult<string> result) => Fail(result.Error, result.ErrorCode);
     }
 }

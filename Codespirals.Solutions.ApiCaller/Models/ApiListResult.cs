@@ -11,31 +11,25 @@ namespace Codespirals.Solutions.ApiCaller
         public string? ErrorCode { get; }
         public string Error { get; } = "";
 
-        private ApiListResult(HttpStatusCode statusCode, IEnumerable<TData> data)
+        private ApiListResult(IEnumerable<TData> data, HttpStatusCode statusCode)
         {
             StatusCode = statusCode;
             Success = true;
             Data = data;
         }
-        private ApiListResult(string error, string? errorCode)
+        private ApiListResult(string error, string? errorCode, HttpStatusCode statusCode)
         {
-            StatusCode = HttpStatusCode.BadRequest;
+            StatusCode = statusCode;
             Success = false;
             Error = error;
             ErrorCode = errorCode;
         }
-        private ApiListResult(HttpStatusCode statusCode, string error, string? errorCode) : this(error, errorCode)
-        {
-            StatusCode = statusCode;
-        }
 
-        public static ApiListResult<TData> Fail(string error, string? errorCode = null)
-            => new(error, errorCode);
-        public static ApiListResult<TData> Fail(HttpStatusCode statusCode, string error, string? errorCode = null)
-            => new(statusCode, error, errorCode);
-        public static ApiListResult<TData> Ok(HttpStatusCode statusCode, IEnumerable<TData> data)
-            => new(statusCode, data);
-        public static ApiListResult<TData> Ok(IEnumerable<TData> data) => Ok(HttpStatusCode.OK, data);
+        public static ApiListResult<TData> Fail(string error, string? errorCode = null, HttpStatusCode statusCode = HttpStatusCode.BadRequest)
+            => new(error, errorCode, statusCode);
+        public static ApiListResult<TData> Ok(IEnumerable<TData> data, HttpStatusCode statusCode = HttpStatusCode.OK)
+            => new(data, statusCode);
+        public static ApiListResult<TData> Ok(IEnumerable<TData> data) => Ok(data, HttpStatusCode.OK);
         public static ApiListResult<TData> Short(IResult<string> result) => Fail(result.Error, result.ErrorCode);
     }
 }

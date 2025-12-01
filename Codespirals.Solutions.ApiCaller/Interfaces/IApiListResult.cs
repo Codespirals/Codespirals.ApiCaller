@@ -6,6 +6,6 @@ public interface IApiListResult<TSelf, TData> : IListResult<TSelf, string, TData
 {
     HttpStatusCode StatusCode { get; }
 
-    static abstract TSelf Ok(HttpStatusCode statusCode, IEnumerable<TData> formattedData);
-    static abstract TSelf Fail(HttpStatusCode statusCode, string error, string? errorCode = default);
+    static abstract TSelf Ok(IEnumerable<TData> formattedData, HttpStatusCode statusCode);
+    static abstract TSelf Fail(string error, string? errorCode = default, HttpStatusCode statusCode = HttpStatusCode.BadRequest);
 }

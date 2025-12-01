@@ -78,7 +78,7 @@ public class ApiCallerService : IApiCallerService
     {
         slug = slug.Trim(' ', '/', '\\', '-', '_', '?');
         bool addAmpersand = false;
-        var parameterString = "";
+        string parameterString = "";
         if (queryParameters.Count != 0)
         {
             StringBuilder parameterStringBuilder = new('?');
@@ -128,27 +128,25 @@ public class ApiCallerService : IApiCallerService
     }
 
     /// <inheritdoc/>
-    public async Task<ApiFilteredListResult<TFilterParameters, TData>> GetManyFiltered<TData, TFilterParameters, TResult>(TFilterParameters parameters, string slug = "", params List<KeyValuePair<string, string>> additionalQueryParameters)
+    public async Task<ApiFilteredListResult<TData, TFilterParameters>> GetManyFiltered<TData, TFilterParameters>(TFilterParameters parameters, string slug = "", params List<KeyValuePair<string, string>> additionalQueryParameters)
         where TFilterParameters : IFilterParameters, new()
-        where TResult : IFilteredListResult<TResult, string, TFilterParameters, TData>
     {
         using IDisposable? log = _logger.BeginLoggingApiCall(nameof(HttpMethod.Get), BaseUrl, slug);
         additionalQueryParameters.AddFilterParameters(parameters);
         string url = BuildRequestUrl(slug, additionalQueryParameters);
         HttpRequestMessage request = new HttpRequestBuilder(HttpMethod.Get).WithUrl(url).Build();
-        return await SendRequestForManyFiltered<TFilterParameters, TData, TResult>(parameters, request);
+        return await SendRequestForManyFiltered<TData, TFilterParameters, ApiFilteredListResult<TData, TFilterParameters>>(request, parameters);
     }
 
     /// <inheritdoc/>
-    public async Task<ApiFilteredListResult<TSearchParameters, TData>> Search<TData, TSearchParameters, TResult>(TSearchParameters parameters, string slug = "", params List<KeyValuePair<string, string>> additionalQueryParameters)
+    public async Task<ApiSearchResult<TData, TSearchParameters>> Search<TData, TSearchParameters>(TSearchParameters parameters, string slug = "", params List<KeyValuePair<string, string>> additionalQueryParameters)
         where TSearchParameters : ISearchParameters, new()
-        where TResult : IFilteredListResult<TResult, string, TSearchParameters, TData>
     {
         using IDisposable? log = _logger.BeginLoggingApiCall(nameof(HttpMethod.Get), BaseUrl, slug);
         additionalQueryParameters.AddFilterParameters(parameters);
         string url = BuildRequestUrl(slug, additionalQueryParameters);
         HttpRequestMessage request = new HttpRequestBuilder(HttpMethod.Get).WithUrl(url).Build();
-        return await SendRequestForManyFiltered<TSearchParameters, TData, TResult>(parameters, request);
+        return await SendRequestForManyFiltered<TData, TSearchParameters, ApiSearchResult<TData, TSearchParameters>>(request, parameters);
     }
 
     /// <inheritdoc/>
@@ -241,7 +239,7 @@ public class ApiCallerService : IApiCallerService
         catch (Exception e)
         {
             _logger.LogApiException(e);
-            return ApiResult<TData>.Fail(HttpStatusCode.BadRequest, e.Message);
+            return ApiResult<TData>.Fail(e.Message, statusCode: HttpStatusCode.BadRequest);
         }
     }
 
@@ -256,9 +254,9 @@ public class ApiCallerService : IApiCallerService
 
             if (!response.IsSuccessStatusCode)
             {
-                var message = await response.Content.ReadAsStringAsync();
+                string message = await response.Content.ReadAsStringAsync();
                 _logger.LogApiFail(message);
-                return ApiResult.Fail(response.StatusCode, "Failed to complete request.");
+                return ApiResult.Fail("Failed to complete request.", statusCode: response.StatusCode);
             }
 
             _logger.LogApiSuccess();
@@ -267,7 +265,7 @@ public class ApiCallerService : IApiCallerService
         // unexpected other error
         catch (Exception e)
         {
-            return ApiResult.Fail(HttpStatusCode.BadRequest, e.Message);
+            return ApiResult.Fail(e.Message);
         }
     }
     internal async Task<ApiResult<TData>> SendRequest<TData>(HttpRequestMessage request)
@@ -278,12 +276,12 @@ public class ApiCallerService : IApiCallerService
             // make call
             using HttpResponseMessage response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseContentRead);
             _logger.LogApiResponse(response);
-            
+
             if (!response.IsSuccessStatusCode)
             {
-                var message = await response.Content.ReadAsStringAsync();
+                string message = await response.Content.ReadAsStringAsync();
                 _logger.LogApiFail(message);
-                return ApiResult<TData>.Fail(response.StatusCode, "Failed to complete request.");
+                return ApiResult<TData>.Fail("Failed to complete request.", statusCode: response.StatusCode);
             }
 
             string responseContent = await response.Content.ReadAsStringAsync();
@@ -291,16 +289,16 @@ public class ApiCallerService : IApiCallerService
             if (res is null)
             {
                 _logger.LogApiFail($"Error when converting response data to {typeof(TData).Name}");
-                return ApiResult<TData>.Fail(HttpStatusCode.NoContent, "No data found");
+                return ApiResult<TData>.Fail("No data found", statusCode: HttpStatusCode.NoContent);
             }
 
             _logger.LogApiSuccess();
-            return ApiResult<TData>.Ok(response.StatusCode, res);
+            return ApiResult<TData>.Ok(res, statusCode: response.StatusCode);
         }
         // unexpected other error
         catch (Exception e)
         {
-            return ApiResult<TData>.Fail(HttpStatusCode.BadRequest, e.Message);
+            return ApiResult<TData>.Fail(e.Message, statusCode: HttpStatusCode.BadRequest);
         }
     }
     /// <summary>
@@ -321,36 +319,36 @@ public class ApiCallerService : IApiCallerService
             if (!response.IsSuccessStatusCode)
             {
                 _logger.LogApiFail($"Invalid Status code: {response.StatusCode}");
-                return ApiListResult<TData>.Fail(response.StatusCode, "Api call failed.");
+                return ApiListResult<TData>.Fail("Api call failed.", statusCode: response.StatusCode);
             }
 
             ICollection<TData>? content = await response.Content.ReadFromJsonAsync<ICollection<TData>>();
             if (content is null)
             {
                 _logger.LogApiFail($"Error when converting response data to a list of {typeof(TData).Name}");
-                return ApiListResult<TData>.Fail(response.StatusCode, "Failed to convert result.");
+                return ApiListResult<TData>.Fail("Failed to convert result.", statusCode: response.StatusCode);
             }
             _logger.LogApiSuccess();
-            return ApiListResult<TData>.Ok(response.StatusCode, content);
+            return ApiListResult<TData>.Ok(content, statusCode: response.StatusCode);
         }
         catch (Exception e)
         {
             _logger.LogApiException(e);
-            return ApiListResult<TData>.Fail(HttpStatusCode.InternalServerError, $"Unknown exception triggered: {e.Message}");
+            return ApiListResult<TData>.Fail($"Unknown exception triggered: {e.Message}", statusCode: HttpStatusCode.InternalServerError);
         }
     }
     /// <summary>
     /// Main API call for many items with a filter or search
     /// </summary>
-    /// <typeparam name="TFilterParameters">The type of the item filter</typeparam>
     /// <typeparam name="TData">What type the items are</typeparam>
+    /// <typeparam name="TFilterParameters">The type of the item filter</typeparam>
     /// <typeparam name="TResult">The type of the result</typeparam>
     /// <param name="filter"></param>
     /// <param name="request"></param>
     /// <returns></returns>
-    internal async Task<ApiFilteredListResult<TFilterParameters, TData>> SendRequestForManyFiltered<TFilterParameters, TData, TResult>(TFilterParameters filter, HttpRequestMessage request)
-        where TFilterParameters : IFilterParameters, new()
-        where TResult : IFilteredListResult<TResult, string, TFilterParameters, TData>
+    internal async Task<TResult> SendRequestForManyFiltered<TData, TFilterParameters, TResult>(HttpRequestMessage request, TFilterParameters filter)
+        where TFilterParameters : IFilterParameters
+        where TResult : IApiFilteredListResult<TResult, TData, TFilterParameters>
     {
         try
         {
@@ -362,26 +360,26 @@ public class ApiCallerService : IApiCallerService
             if (!response.IsSuccessStatusCode)
             {
                 _logger.LogApiFail($"Invalid Status Code: {response.StatusCode}");
-                return ApiFilteredListResult<TFilterParameters, TData>.Fail(filter, response.StatusCode, "Api call failed.");
+                return TResult.Fail(filter, "Api call failed.", statusCode: response.StatusCode);
             }
             TResult? content = await response.Content.ReadFromJsonAsync<TResult>();
             if (content is null)
             {
                 _logger.LogApiFail($"Error when converting response data to a list of {typeof(TData).Name}");
-                return ApiFilteredListResult<TFilterParameters, TData>.Fail(filter, response.StatusCode, "Type error.");
+                return TResult.Fail(filter, "Type error.", statusCode: response.StatusCode);
             }
             if (!content.Success || content.Data is null)
             {
                 _logger.LogApiFail($"Api call successful, but the request resulted in an error: {content.Error}");
-                return ApiFilteredListResult<TFilterParameters, TData>.Fail(filter, response.StatusCode, content.Error, content.ErrorCode);
+                return TResult.Fail(filter, content.Error, content.ErrorCode, statusCode: response.StatusCode);
             }
             _logger.LogApiSuccess();
-            return ApiFilteredListResult<TFilterParameters, TData>.Ok(content.Parameters, response.StatusCode, content.Data, content.TotalResults);
+            return TResult.Ok(content.Data, content.Parameters, content.TotalResults, statusCode: response.StatusCode);
         }
         catch (Exception e)
         {
             _logger.LogApiException(e);
-            return ApiFilteredListResult<TFilterParameters, TData>.Fail(filter, HttpStatusCode.BadRequest, e.Message);
+            return TResult.Fail(filter, e.Message, statusCode: HttpStatusCode.BadRequest);
         }
     }
 }

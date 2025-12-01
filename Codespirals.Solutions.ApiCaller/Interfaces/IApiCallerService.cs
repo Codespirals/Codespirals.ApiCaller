@@ -79,9 +79,8 @@ public interface IApiCallerService : INameable
     /// <typeparam name="TData">The expected return type</typeparam>
     /// <param name="slug">A slug string (optional)</param>
     /// <returns>An api result with the requested section of the list as well as the total possible results found.</returns>
-    Task<ApiFilteredListResult<TFilterParameters, TData>> GetManyFiltered<TData, TFilterParameters, TResult>(TFilterParameters paramters, string slug = "", params List<KeyValuePair<string, string>> additionalQueryParameters)
-        where TFilterParameters : IFilterParameters, new()
-        where TResult : IFilteredListResult<TResult, string, TFilterParameters, TData>;
+    Task<ApiFilteredListResult<TData, TFilterParameters>> GetManyFiltered<TData, TFilterParameters>(TFilterParameters paramters, string slug = "", params List<KeyValuePair<string, string>> additionalQueryParameters)
+        where TFilterParameters : IFilterParameters, new();
 
     /// <summary>
     /// Send a GET request to get a partial list of resources to the API
@@ -89,9 +88,8 @@ public interface IApiCallerService : INameable
     /// <typeparam name="TData">The expected return type</typeparam>
     /// <param name="slug">A slug string (optional)</param>
     /// <returns>An api result with the requested section of the list as well as the total possible results found.</returns>
-    Task<ApiFilteredListResult<TSearchParameters, TData>> Search<TData, TSearchParameters, TResult>(TSearchParameters paramters, string slug = "", params List<KeyValuePair<string, string>> additionalQueryParameters)
-        where TSearchParameters : ISearchParameters, new()
-        where TResult : IFilteredListResult<TResult, string, TSearchParameters, TData>;
+    Task<ApiSearchResult<TData, TSearchParameters>> Search<TData, TSearchParameters>(TSearchParameters paramters, string slug = "", params List<KeyValuePair<string, string>> additionalQueryParameters)
+        where TSearchParameters : ISearchParameters, new();
 
     /// <summary>
     /// Send a delete request to the API

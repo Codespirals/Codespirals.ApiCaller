@@ -1,6 +1,4 @@
-﻿using Codespirals.Solutions.ApiCaller;
-
-namespace Codespirals.Solutions.ApiCaller.Example
+﻿namespace Codespirals.Solutions.ApiCaller.Example
 {
     public interface IApiExampleService
     {

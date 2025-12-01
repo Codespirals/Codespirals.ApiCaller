@@ -17,12 +17,12 @@ namespace Codespirals.Solutions.ApiCaller
             => logger.LogStep(Base.LoggingExtensions.State.InProgress, $"Sending {request.Method} request call to {request.RequestUri}\nWith data: {request.Content?.ReadAsStream().ToString() ?? "No data"}");
         internal static void LogApiResponse(this ILogger logger, HttpResponseMessage response)
         {
-            var content = response.Content.ReadAsStream();
+            Stream content = response.Content.ReadAsStream();
             logger.LogStep(Base.LoggingExtensions.State.InProgress, content.ToString() ?? "No Content");
         }
         internal static void LogApiResponseHeaders(this ILogger logger, HttpResponseMessage response)
         {
-            var headers = string.Join("\n", response.Headers.Select(h => $"{h.Key}:{h.Value}"));
+            string headers = string.Join("\n", response.Headers.Select(h => $"{h.Key}:{h.Value}"));
             logger.LogStep(Base.LoggingExtensions.State.InProgress, headers.ToString() ?? "No Headers");
         }
         internal static void LogApiSuccess(this ILogger logger)

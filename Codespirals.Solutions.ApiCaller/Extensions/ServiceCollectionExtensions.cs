@@ -13,16 +13,16 @@ namespace Codespirals.Solutions.ApiCaller
         /// <param name="configuration">The settings that contains the specific settings for the services.</param>
         public static void AddAttributedApiCallerServices(this IServiceCollection services, IConfiguration configuration)
         {
-            var apiCallerServices = AppDomain.CurrentDomain.GetAssemblies().SelectMany(a => a.GetTypes()
+            IEnumerable<Type> apiCallerServices = AppDomain.CurrentDomain.GetAssemblies().SelectMany(a => a.GetTypes()
                 .Where(t => !t.IsAbstract
                 && t.GetCustomAttribute<RequiredInjectableService>() is not null
                 && t.GetCustomAttribute<RequiredInjectableService>()?.Service == typeof(ApiCallerService)));
 
-            foreach (var service in apiCallerServices)
+            foreach (Type? service in apiCallerServices)
             {
                 if (service is null)
                     continue;
-                var attribute = service.GetCustomAttribute<RequiredInjectableService>();
+                RequiredInjectableService? attribute = service.GetCustomAttribute<RequiredInjectableService>();
                 if (services.Any(s => s.ServiceType == typeof(ApiCallerService) && s.ServiceKey?.ToString() == attribute?.Key))
                     continue;
 

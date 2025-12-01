@@ -22,5 +22,5 @@ public interface IApiResult<TSelf, TData> : IApiResult<TSelf>, IResultWithData<T
 {
     /// <inheritdoc cref="IResultWithData{TSelf, TErrorCode, TData}.Ok(TData)" />
     /// <param name="statusCode">An <see cref="HttpStatusCode"/></param>
-    static abstract TSelf Ok(TData data, HttpStatusCode statusCode = HttpStatusCode.OK);
+    static abstract TSelf Ok(TData data, HttpStatusCode statusCode);
 }
