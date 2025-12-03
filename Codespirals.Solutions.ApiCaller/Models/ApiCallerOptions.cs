@@ -13,6 +13,7 @@ namespace Codespirals.Solutions.ApiCaller
     {
         /// <inheritdoc/>
         public required string BaseAddress { get; init; }
+        public string? UserAgent { get; init; }
         /// <inheritdoc/>
         public string? Name { get; init; }
         /// <inheritdoc/>

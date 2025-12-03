@@ -1,4 +1,5 @@
-﻿using System.Net.Http.Json;
+﻿using System.Net.Http.Headers;
+using System.Net.Http.Json;
 
 namespace Codespirals.Solutions.ApiCaller;
 public class HttpRequestBuilder
@@ -23,6 +24,11 @@ public class HttpRequestBuilder
     public HttpRequestBuilder WithBody<TBody>(TBody body)
     {
         Request.Content = JsonContent.Create(body);
+        return new HttpRequestBuilder(Request);
+    }
+    public HttpRequestBuilder WithUserAgent(string agent, Version? version = null)
+    {
+        Request.Headers.UserAgent.Add(new ProductInfoHeaderValue(agent, version?.ToString(2)));
         return new HttpRequestBuilder(Request);
     }
     public HttpRequestBuilder WithCredentials(ApiCredentials credentials)

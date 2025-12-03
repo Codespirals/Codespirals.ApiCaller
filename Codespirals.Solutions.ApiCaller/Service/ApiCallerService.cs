@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Reflection;
 using System.Text;
 
 namespace Codespirals.Solutions.ApiCaller;
@@ -58,24 +59,31 @@ public class ApiCallerService : IApiCallerService
         };
         SetDefaultVersion(options.Value.Version);
         SetDefaultApiCredentials(options.Value.DefaultCredentials);
+        SetDefaultUserAgent(options.Value.UserAgent, options.Value.Version);
     }
     internal void SetDefaultVersion(Version? version)
     {
-        if (version is not null)
-            _httpClient.DefaultRequestVersion = version;
+        if (version is null)
+            return;
+        _httpClient.DefaultRequestVersion = version;
+    }
+    internal void SetDefaultUserAgent(string? userAgent, Version? version)
+    {
+        userAgent ??= Assembly.GetExecutingAssembly().FullName;
+        if (userAgent is null)
+            return;
+        _httpClient.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(userAgent, version?.ToString(2)));
     }
     internal void SetDefaultApiCredentials(ApiCredentials? credentials)
     {
         if (credentials is null)
             return;
         if (credentials.Id is not null)
-            SetDefaultToken((KeyValuePair<string, string>)credentials.Id);
-        SetDefaultToken(credentials.Key);
+            AddDefaultToken((KeyValuePair<string, string>)credentials.Id);
+        AddDefaultToken(credentials.Key);
     }
-    internal void SetDefaultToken(KeyValuePair<string, string> token)
-    {
-        _httpClient.DefaultRequestHeaders.Add(token.Key, token.Value);
-    }
+    internal void AddDefaultToken(KeyValuePair<string, string> token)
+        => _httpClient.DefaultRequestHeaders.Add(token.Key, token.Value);
     internal string BuildRequestUrl(string slug = "", params List<KeyValuePair<string, string>> queryParameters)
     {
         slug = slug.Trim(' ', '/', '\\', '-', '_', '?');
@@ -100,7 +108,7 @@ public class ApiCallerService : IApiCallerService
     {
         if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(value))
             return;
-        SetDefaultToken(new KeyValuePair<string, string>(name, value));
+        AddDefaultToken(new KeyValuePair<string, string>(name, value));
     }
     /// <inheritdoc/>
     public async Task<TData?> QuickGet<TData>(string slug = "", params List<KeyValuePair<string, string>> queryParameters)
@@ -356,9 +364,10 @@ public class ApiCallerService : IApiCallerService
     /// <param name="filter"></param>
     /// <param name="request"></param>
     /// <returns></returns>
-    internal async Task<TResult> SendRequestForManyFiltered<TData, TFilterParameters, TResult>(HttpRequestMessage request, TFilterParameters filter)
+    internal async Task<TResult> SendRequestForManyFiltered<TData, TContent, TFilterParameters, TResult>(HttpRequestMessage request, TFilterParameters filter)
         where TFilterParameters : IFilterParameters
         where TResult : IApiFilteredListResult<TResult, TData, TFilterParameters>
+        where TContent : IPagination<TFilterParameters>
     {
         try
         {
@@ -372,18 +381,14 @@ public class ApiCallerService : IApiCallerService
                 _logger.LogApiFail($"Invalid Status Code: {response.StatusCode}");
                 return TResult.Fail(filter, "Api call failed.", statusCode: response.StatusCode);
             }
-            TResult? content = await response.Content.ReadFromJsonAsync<TResult>();
+            TContent? content = await response.Content.ReadFromJsonAsync<TContent>();
             if (content is null)
             {
                 _logger.LogApiFail($"Error when converting response data to a list of {typeof(TData).Name}");
                 return TResult.Fail(filter, "Type error.", statusCode: response.StatusCode);
             }
-            if (!content.Success || content.Data is null)
-            {
-                _logger.LogApiFail($"Api call successful, but the request resulted in an error: {content.Error}");
-                return TResult.Fail(filter, content.Error, content.ErrorCode, statusCode: response.StatusCode);
-            }
             _logger.LogApiSuccess();
+            // TODO Create "IHasData" interface in base
             return TResult.Ok(content.Data, content.Parameters, content.TotalResults, statusCode: response.StatusCode);
         }
         catch (Exception e)
