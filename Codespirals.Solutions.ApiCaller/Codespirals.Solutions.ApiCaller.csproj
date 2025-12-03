@@ -4,7 +4,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Title>$(AssemblyName)</Title>
-    <Version>0.4.109.25335</Version>
+    <Version>0.4.111.25337</Version>
     <Description>An easily implementable service to call an API with.</Description>
     <PackageReadmeFile>
     </PackageReadmeFile>
@@ -43,7 +43,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Codespirals.Base.Shared" Version="1.0.171.25335" />
+    <PackageReference Include="Codespirals.Base.Shared" Version="1.0.173.25336" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.10" />
   </ItemGroup>
   <ItemGroup>

@@ -8,10 +8,10 @@ builder.Services.AddRazorPages();
 builder.Logging.AddDebug().SetMinimumLevel(LogLevel.Debug);
 
 /// Add the api service to your services with the following command:
-/// Replace the name with whatever you name your Api AND the section in the <see cref="IConfigurationSection"/>
-builder.RegisterApiCaller("CatFactApi");
+builder.Services.Configure<ApiCallerOptions>(builder.Configuration.GetSection(nameof(ApiCallerService)));
+builder.Services.AddTransient<IApiCallerService, ApiCallerService>();
 
-/// add your newly created service that uses the <see cref="IApiService"/>
+/// add your newly created service that uses the <see cref="ApiCallerService"/>
 builder.Services.AddScoped<IApiExampleService, ApiExampleService>();
 
 var app = builder.Build();

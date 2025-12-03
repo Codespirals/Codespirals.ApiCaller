@@ -36,10 +36,28 @@ namespace Codespirals.Solutions.ApiCaller
         /// <param name="services"></param>
         /// <param name="configuration"></param>
         /// <param name="lifetime"></param>
-        public static void AddApiCallerService(this IServiceCollection services, IConfiguration configuration, ServiceLifetime lifetime = ServiceLifetime.Transient)
+        public static void AddApiCallerService(this IServiceCollection services, IConfiguration configuration, string? serviceKey = null, ServiceLifetime lifetime = ServiceLifetime.Transient)
         {
-            services.Configure<ApiCallerOptions>(configuration);
-            services.TryAdd(new ServiceDescriptor(typeof(IApiCallerService), typeof(ApiCallerService), lifetime));
+            services.Configure<ApiCallerOptions>(configuration.GetSection(serviceKey ?? nameof(ApiCallerService)));
+            if (serviceKey is null)
+                services.TryAdd(new ServiceDescriptor(typeof(IApiCallerService), typeof(ApiCallerService), lifetime));
+            else
+                services.TryAdd(new ServiceDescriptor(typeof(IApiCallerService), serviceKey, typeof(ApiCallerService), lifetime));
+        }
+        /// <summary>
+        /// Add an api caller service 
+        /// </summary>
+        /// <param name="services"></param>
+        /// <param name="lifetime"></param>
+        public static void AddApiCallerService(this IServiceCollection services, string baseUrl, string? serviceKey = null, ServiceLifetime lifetime = ServiceLifetime.Transient, KeyValuePair<string, string>? apiKey = null)
+        {
+            var credentials = apiKey is not null && apiKey.HasValue ? new ApiCredentials(apiKey.Value.Key, apiKey.Value.Value) : null;
+            var options = new ApiCallerOptions { BaseAddress = baseUrl, DefaultCredentials = credentials };
+            services.ConfigureOptions(options);
+            if (serviceKey is null)
+                services.TryAdd(new ServiceDescriptor(typeof(IApiCallerService), typeof(ApiCallerService), lifetime));
+            else
+                services.TryAdd(new ServiceDescriptor(typeof(IApiCallerService), serviceKey, typeof(ApiCallerService), lifetime));
         }
     }
 }

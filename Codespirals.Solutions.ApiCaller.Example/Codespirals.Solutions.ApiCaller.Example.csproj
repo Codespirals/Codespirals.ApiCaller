@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Codespirals.Solutions.ApiCaller" Version="0.4.101.25330" />
+    <PackageReference Include="Codespirals.Solutions.ApiCaller" Version="0.4.110.25336" />
   </ItemGroup>
 
   <ItemGroup>

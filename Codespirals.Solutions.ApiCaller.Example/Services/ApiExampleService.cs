@@ -5,7 +5,7 @@
         Task<CatFact?> GetCatFact();
     }
 
-    public class ApiExampleService([FromKeyedServices("CatFactApi")] IApiCallerService apiService) : IApiExampleService
+    public class ApiExampleService(IApiCallerService apiService) : IApiExampleService
     {
         private readonly IApiCallerService _apiService = apiService;
 

@@ -24,9 +24,9 @@ public class ApiCallerService : IApiCallerService
     internal readonly ILogger _logger;
 
     /// <inheritdoc/>
-    public string Name { get; }
-    /// <inheritdoc/>
     public string BaseUrl { get; }
+    /// <inheritdoc/>
+    public string Name { get; }
     /// <summary>
     /// The API service to send requests to the API
     /// </summary>
@@ -105,9 +105,17 @@ public class ApiCallerService : IApiCallerService
     /// <inheritdoc/>
     public async Task<TData?> QuickGet<TData>(string slug = "", params List<KeyValuePair<string, string>> queryParameters)
     {
+        using IDisposable? log = _logger.BeginLoggingApiCall(nameof(HttpMethod.Get), BaseUrl, slug);
         string endpoint = BuildRequestUrl(slug, queryParameters);
         HttpRequestMessage request = new HttpRequestBuilder(HttpMethod.Get).WithUrl(endpoint).Build();
+        _logger.LogStep(LoggingExtensions.State.InProgress);
         using HttpResponseMessage response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseContentRead);
+        if (!response.IsSuccessStatusCode)
+        {
+            _logger.LogApiFail(response.Content.IsText() ? response.Content.ToString() : null);
+            return default;
+        }
+        _logger.LogApiSuccess();
         TData? res = await response.Content.ReadFromJsonAsync<TData>();
         return res;
     }

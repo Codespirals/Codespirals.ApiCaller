@@ -1,5 +1,4 @@
 ﻿using Codespirals.Base.Attributes;
-using Microsoft.Extensions.Hosting;
 
 namespace Codespirals.Solutions.ApiCaller
 {
@@ -13,14 +12,14 @@ namespace Codespirals.Solutions.ApiCaller
     public sealed class ApiCallerOptions
     {
         /// <inheritdoc/>
-        public string Name { get; set; } = string.Empty;
-        /// <inheritdoc/>
         public required string BaseAddress { get; init; }
         /// <inheritdoc/>
-        public Version? Version { get; set; }
+        public string? Name { get; init; }
         /// <inheritdoc/>
-        public ApiCredentials? DefaultCredentials { get; set; }
+        public Version? Version { get; init; }
         /// <inheritdoc/>
-        public string Environment { get; set; } = Environments.Development;
+        public string? Environment { get; init; }
+        /// <inheritdoc/>
+        public ApiCredentials? DefaultCredentials { get; init; }
     }
 }
