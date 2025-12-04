@@ -15,14 +15,6 @@ namespace Codespirals.Solutions.ApiCaller
         public string? ErrorCode { get; }
         public string Error { get; } = "";
 
-        private ApiFilteredListResult(IEnumerable<TData> unformattedData, TFilter parameters, HttpStatusCode statusCode)
-        {
-            Success = true;
-            StatusCode = statusCode;
-            Data = unformattedData.ApplyFilterParameters(parameters, short.MaxValue, out int totalResults);
-            Parameters = parameters;
-            TotalResults = totalResults;
-        }
         private ApiFilteredListResult(IEnumerable<TData> formattedData, TFilter parameters, int totalResult, HttpStatusCode statusCode)
         {
             Success = true;
@@ -53,10 +45,6 @@ namespace Codespirals.Solutions.ApiCaller
             => Ok(formattedData, filter, totalResults, HttpStatusCode.OK);
         public static ApiFilteredListResult<TData, TFilter> Ok(IEnumerable<TData> filteredData, TFilter parameters, int totalResults, HttpStatusCode statusCode)
             => new(filteredData, parameters, totalResults, statusCode);
-        public static ApiFilteredListResult<TData, TFilter> OkAndFormat(IEnumerable<TData> unformattedData, TFilter filter)
-            => OkAndFormat(unformattedData, filter, HttpStatusCode.OK);
-        public static ApiFilteredListResult<TData, TFilter> OkAndFormat(IEnumerable<TData> unfliteredData, TFilter parameters, HttpStatusCode statusCode)
-            => new(unfliteredData, parameters, statusCode);
 
         public static ApiFilteredListResult<TData, TFilter> Short(IResult<string> result) => Fail(result.Error, result.ErrorCode);
     }

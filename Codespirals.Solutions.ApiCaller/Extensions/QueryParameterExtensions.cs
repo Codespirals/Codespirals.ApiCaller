@@ -1,14 +1,18 @@
 ﻿using Codespirals.Base.Filtering;
+using System.Text;
 
 namespace Codespirals.Solutions.ApiCaller;
 internal static class QueryParameterExtensions
 {
-    internal static void AddFilterParameters<TFilterParameters>(this List<KeyValuePair<string, string>> queryParameters, TFilterParameters filterParameters)
+    internal static string ToQueryString<TFilterParameters>(this TFilterParameters filterParameters, bool startWithAmp = true)
         where TFilterParameters : IFilterParameters
     {
         System.Reflection.PropertyInfo[] properties = filterParameters.GetType().GetProperties();
+        var sb = new StringBuilder();
         foreach (System.Reflection.PropertyInfo property in properties)
         {
+            if (startWithAmp)
+                sb.Append('&');
             if (!property.CanRead)
                 continue;
             object? value = property.GetValue(filterParameters);
@@ -18,8 +22,10 @@ internal static class QueryParameterExtensions
             if (string.IsNullOrWhiteSpace(valueAsString))
                 continue;
             // make name camelcase (API standard) as this is often pascal case
-            string name = char.ToLowerInvariant(property.Name[0]) + property.Name[1..]; ;
-            queryParameters.Add(new KeyValuePair<string, string>(name, valueAsString));
+            string name = $"{char.ToLowerInvariant(property.Name[0])}{property.Name[1..]}";
+            sb.Append($"{name}={valueAsString}");
+            startWithAmp = true;
         }
+        return sb.ToString();
     }
 }

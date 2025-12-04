@@ -4,11 +4,13 @@ namespace Codespirals.Solutions.ApiCaller
 {
     internal static class ApiLoggingExtensions
     {
-        internal static IDisposable? BeginLoggingApiCall(this ILogger logger, string httpMethod, string baseUrl, string? slug = "")
+        internal static IDisposable? BeginLoggingApiCall(this ILogger logger, string? httpMethod, string? endpoint)
         {
-            Dictionary<string, string> tags = new()
-            { { "Api", baseUrl }, { "Method", httpMethod } };
-            if (!string.IsNullOrEmpty(slug)) { tags.Add("Endpoint", slug); }
+            Dictionary<string, string> tags = [];
+            if (httpMethod is not null)
+                tags.Add("Method", httpMethod);
+            if (endpoint is not null)
+                tags.Add("Endpoint", endpoint);
             return logger.BeginLog(nameof(ApiCallerService), tags, "Starting API Call");
         }
         internal static void LogApiRequest(this ILogger logger, HttpRequestMessage request)
@@ -25,7 +27,7 @@ namespace Codespirals.Solutions.ApiCaller
         }
         internal static void LogApiSuccess(this ILogger logger)
             => logger.LogStep(LoggingExtensions.State.Success, "Api Call sucessfully completed.");
-        internal static void LogApiFail(this ILogger logger, string? error)
+        internal static void LogApiFail(this ILogger logger, string? error = null)
             => logger.LogStep(LoggingExtensions.State.Cancelled, $"Api Call failed: {error ?? "No error message"}");
         internal static void LogApiException(this ILogger logger, Exception e)
             => logger.LogException(LoggingExtensions.State.Stopped, e);

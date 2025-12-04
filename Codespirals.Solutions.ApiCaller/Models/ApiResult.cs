@@ -39,10 +39,8 @@ namespace Codespirals.Solutions.ApiCaller
     {
         public HttpStatusCode StatusCode { get; } = HttpStatusCode.Ambiguous;
         public bool Success { get; }
-        /// <inheritdoc />
         public TData? Data { get; }
         public string? ErrorCode { get; }
-        /// <inheritdoc />
         public string Error { get; } = "";
 
         private ApiResult(TData data, HttpStatusCode statusCode)
