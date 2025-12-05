@@ -8,7 +8,7 @@ internal static class QueryParameterExtensions
         where TFilterParameters : IFilterParameters
     {
         System.Reflection.PropertyInfo[] properties = filterParameters.GetType().GetProperties();
-        var sb = new StringBuilder();
+        StringBuilder sb = new();
         foreach (System.Reflection.PropertyInfo property in properties)
         {
             if (startWithAmp)

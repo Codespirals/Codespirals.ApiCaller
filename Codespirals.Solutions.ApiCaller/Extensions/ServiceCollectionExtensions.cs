@@ -51,8 +51,8 @@ namespace Codespirals.Solutions.ApiCaller
         /// <param name="lifetime"></param>
         public static void AddApiCallerService(this IServiceCollection services, string baseUrl, string? serviceKey = null, ServiceLifetime lifetime = ServiceLifetime.Transient, KeyValuePair<string, string>? apiKey = null)
         {
-            var credentials = apiKey is not null && apiKey.HasValue ? new ApiCredentials(apiKey.Value.Key, apiKey.Value.Value) : null;
-            var options = new ApiCallerOptions { BaseAddress = baseUrl, DefaultCredentials = credentials };
+            ApiCredentials? credentials = apiKey is not null && apiKey.HasValue ? new ApiCredentials(apiKey.Value.Key, apiKey.Value.Value) : null;
+            ApiCallerOptions options = new() { BaseAddress = baseUrl, DefaultCredentials = credentials };
             services.ConfigureOptions(options);
             if (serviceKey is null)
                 services.TryAdd(new ServiceDescriptor(typeof(IApiCallerService), typeof(ApiCallerService), lifetime));

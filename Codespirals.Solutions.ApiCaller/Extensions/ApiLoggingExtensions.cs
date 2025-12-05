@@ -17,7 +17,7 @@ namespace Codespirals.Solutions.ApiCaller
             => logger.LogStep(LoggingExtensions.State.InProgress, $"Sending {request.Method} request call to {request.RequestUri}\nWith data: {request.Content?.ReadAsStream().ToString() ?? "No data"}");
         internal static void LogApiResponse(this ILogger logger, HttpResponseMessage response)
         {
-            var content = response.Content.IsText() ? response.Content.ToString() : "No Content";
+            string? content = response.Content.IsText() ? response.Content.ToString() : "No Content";
             logger.LogStep(LoggingExtensions.State.InProgress, $"Error Code: {response.StatusCode} Content: {content}");
         }
         internal static void LogApiResponseHeaders(this ILogger logger, HttpResponseMessage response)

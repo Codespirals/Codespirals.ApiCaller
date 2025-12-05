@@ -14,12 +14,43 @@ public interface IApiCallerService : INameable
     string BaseUrl { get; }
 
     /// <summary>
+    /// Sets the default version to be used by the application.
+    /// </summary>
+    /// <remarks>This method updates the default version used for operations that depend on versioning. 
+    /// Passing <see langword="null"/> reverts the application to using no default version.</remarks>
+    /// <param name="version">The version to set as the default. If <see langword="null"/>, the default version will be cleared.</param>
+    void SetDefaultVersion(Version? version);
+    /// <summary>
+    /// Sets the default user agent string and version for outgoing requests.
+    /// </summary>
+    /// <remarks>This method allows customization of the user agent string and version used in outgoing
+    /// requests. If both parameters are <see langword="null"/> no user agent will be set.</remarks>
+    /// <param name="userAgent">The user agent string to use.</param>
+    /// <param name="version">The version associated with the user agent. Can be <see langword="null"/> if no version is specified.</param>
+    void SetDefaultUserAgent(string? userAgent, Version? version);
+    /// <summary>
+    /// Sets the default API credentials to be used for authentication in subsequent API requests.
+    /// </summary>
+    /// <remarks>This method updates the default credentials used by the application. If no credentials are
+    /// set,  API requests may fail if authentication is required.</remarks>
+    /// <param name="credentials">The <see cref="ApiCredentials"/> instance containing the API key and secret.  Pass <see langword="null"/> to
+    /// clear the default credentials.</param>
+    void SetDefaultApiCredentials(ApiCredentials? credentials);
+    /// <summary>
     /// Add a default header sent with every api call
     /// </summary>
     /// <param name="name"></param>
     /// <param name="value"></param>
     void AddDefaultHeader(string name, string value);
 
+    /// <summary>
+    /// Begins the construction of a custom API call by returning an instance of <see cref="HttpRequestBuilder"/>.
+    /// </summary>
+    /// <remarks>Use the returned <see cref="HttpRequestBuilder"/> to configure the HTTP request, including
+    /// setting headers, query parameters, and the request body. Once configured, the request can be executed to
+    /// interact with the target API.</remarks>
+    /// <returns>An instance of <see cref="HttpRequestBuilder"/> that allows customization of the HTTP request.</returns>
+    HttpRequestBuilder BeginCustomApiCall();
     /// <summary>
     /// Send a create request to the API
     /// </summary>
@@ -96,16 +127,24 @@ public interface IApiCallerService : INameable
     Task<ApiResult<TData>> Connect<TData>(int port, string slug = "", params List<KeyValuePair<string, string>> additionalQueryParameters);
 
     /// <summary>
-    /// Send a request to get a head response to the API
+    /// Sends an HTTP HEAD request to the specified resource and retrieves the response headers.
     /// </summary>
-    /// <param name="slug">A slug string (optional)</param>
-    /// <returns>The <see cref="HttpHeaders"/> that would result from a <see cref="Get()"/> call, or <see langword="null"/>, if it fails catastrophically</returns>
+    /// <remarks>Use this method to check the metadata of a resource without downloading its content. The
+    /// method allows adding custom query parameters to the request.</remarks>
+    /// <param name="slug">An optional path segment appended to the base URL. If not provided, the base URL is used.</param>
+    /// <param name="additionalQueryParameters">A collection of key-value pairs representing additional query parameters to include in the request.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains an <see cref="ApiResult{T}"/> object
+    /// with the HTTP response headers as <see cref="HttpHeaders"/>.</returns>
     Task<ApiResult<HttpHeaders>> Head(string slug = "", params List<KeyValuePair<string, string>> additionalQueryParameters);
 
     /// <summary>
-    /// Send a request to get the options of the API
+    /// Sends an HTTP OPTIONS request to the specified resource and retrieves the response headers.
     /// </summary>
-    /// <param name="slug">A slug string (optional)</param>
-    /// <returns>The options in a <see cref="HttpHeaderValueCollection{string}"/> of the given type or <see langword="null"/>, if it fails catastrophically</returns>
+    /// <remarks>Use this method to determine the communication options available for a specific resource. The
+    /// response typically includes metadata about the resource, such as allowed HTTP methods.</remarks>
+    /// <param name="slug">An optional resource identifier appended to the base URL. Defaults to an empty string.</param>
+    /// <param name="additionalQueryParameters">A collection of key-value pairs representing additional query parameters to include in the request.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains an <see cref="ApiResult{T}"/> object
+    /// with a collection of HTTP header values returned by the server.</returns>
     Task<ApiResult<HttpHeaderValueCollection<string>>> Options(string slug = "", params List<KeyValuePair<string, string>> additionalQueryParameters);
 }
