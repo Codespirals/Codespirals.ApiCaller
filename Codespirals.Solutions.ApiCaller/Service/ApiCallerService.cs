@@ -94,8 +94,36 @@ public class ApiCallerService : IApiCallerService
         => new(_httpClient, _logger);
 
     /// <inheritdoc/>
+    public async Task<ApiResult> Get(string slug = "", params List<KeyValuePair<string, string>> additionalQueryParameters)
+        => await BeginCustomApiCall().WithEndpoint(slug, additionalQueryParameters).Send();
+
+    /// <inheritdoc/>
     public async Task<ApiResult<TData>> Get<TData>(string slug = "", params List<KeyValuePair<string, string>> additionalQueryParameters)
         => await BeginCustomApiCall().WithEndpoint(slug, additionalQueryParameters).Send<TData>();
+
+    /// <inheritdoc/>
+    public async Task<ApiResult> Post<TBody>(TBody body, string slug = "", params List<KeyValuePair<string, string>> additionalQueryParameters)
+        => await BeginCustomApiCall().WithEndpoint(slug, additionalQueryParameters).WithBody(body).Send(HttpMethod.Post);
+
+    /// <inheritdoc/>
+    public async Task<ApiResult<TData>> Post<TData, TBody>(TBody body, string slug = "", params List<KeyValuePair<string, string>> additionalQueryParameters)
+        => await BeginCustomApiCall().WithEndpoint(slug, additionalQueryParameters).WithBody(body).Send<TData>(HttpMethod.Post);
+
+    /// <inheritdoc/>
+    public async Task<ApiResult> Put<TBody>(TBody body, string slug = "", params List<KeyValuePair<string, string>> additionalQueryParameters)
+        => await BeginCustomApiCall().WithEndpoint(slug, additionalQueryParameters).WithBody(body).Send(HttpMethod.Put);
+
+    /// <inheritdoc/>
+    public async Task<ApiResult<TData>> Put<TData, TBody>(TBody body, string slug = "", params List<KeyValuePair<string, string>> additionalQueryParameters)
+        => await BeginCustomApiCall().WithEndpoint(slug, additionalQueryParameters).WithBody(body).Send<TData>(HttpMethod.Put);
+
+    /// <inheritdoc/>
+    public async Task<ApiResult> Patch<TBody>(TBody body, string slug = "", params List<KeyValuePair<string, string>> additionalQueryParameters)
+        => await BeginCustomApiCall().WithEndpoint(slug, additionalQueryParameters).WithBody(body).Send(HttpMethod.Patch);
+
+    /// <inheritdoc/>
+    public async Task<ApiResult<TData>> Patch<TData, TBody>(TBody body, string slug = "", params List<KeyValuePair<string, string>> additionalQueryParameters)
+        => await BeginCustomApiCall().WithEndpoint(slug, additionalQueryParameters).WithBody(body).Send<TData>(HttpMethod.Patch);
 
     /// <inheritdoc/>
     public async Task<ApiFilteredListResult<TData, TFilterParameters>> GetPaginated<TData, TResponse, TFilterParameters>(TFilterParameters parameters, string slug = "", params List<KeyValuePair<string, string>> additionalQueryParameters)
@@ -112,18 +140,6 @@ public class ApiCallerService : IApiCallerService
     /// <inheritdoc/>
     public async Task<ApiResult> Delete(string slug = "", params List<KeyValuePair<string, string>> additionalQueryParameters)
         => await BeginCustomApiCall().WithEndpoint(slug, additionalQueryParameters).Send(HttpMethod.Delete);
-
-    /// <inheritdoc/>
-    public async Task<ApiResult<TData>> Post<TData, TBody>(TBody body, string slug = "", params List<KeyValuePair<string, string>> additionalQueryParameters)
-        => await BeginCustomApiCall().WithEndpoint(slug, additionalQueryParameters).WithBody(body).Send<TData>(HttpMethod.Post);
-
-    /// <inheritdoc/>
-    public async Task<ApiResult<TData>> Put<TData, TBody>(TBody body, string slug = "", params List<KeyValuePair<string, string>> additionalQueryParameters)
-        => await BeginCustomApiCall().WithEndpoint(slug, additionalQueryParameters).WithBody(body).Send<TData>(HttpMethod.Put);
-
-    /// <inheritdoc/>
-    public async Task<ApiResult<TData>> Patch<TData, TBody>(TBody body, string slug = "", params List<KeyValuePair<string, string>> additionalQueryParameters)
-        => await BeginCustomApiCall().WithEndpoint(slug, additionalQueryParameters).WithBody(body).Send<TData>(HttpMethod.Patch);
 
     /// <inheritdoc/>
     public async Task<ApiResult<TData>> Connect<TData>(int port, string slug = "", params List<KeyValuePair<string, string>> additionalQueryParameters)
