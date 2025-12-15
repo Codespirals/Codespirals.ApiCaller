@@ -3,9 +3,10 @@ using System.Net;
 
 namespace Codespirals.Solutions.ApiCaller
 {
+    /// <inheritdoc cref="IApiResult{TSelf}"/>
     public record ApiResult : IApiResult<ApiResult>
     {
-        /// <inheritdoc cref="IApiResult{TSelf}.StatusCode"/>
+        /// <inheritdoc cref="IApiResult.StatusCode"/>
         public HttpStatusCode StatusCode { get; } = HttpStatusCode.Ambiguous;
         /// <inheritdoc cref="IResult{TErrorCode}.Success"/>
         public bool Success { get; }
@@ -27,14 +28,23 @@ namespace Codespirals.Solutions.ApiCaller
             ErrorCode = errorCode;
         }
 
-        /// <inheritdoc cref="IResult{TSelf, TErrorCode}.Fail(string, TErrorCode?)"/>
+        /// <summary>
+        /// Creates a successful <see cref="ApiResult"/> with the specified HTTP status code.
+        /// </summary>
+        /// <param name="statusCode">The HTTP status code to associate with the result. The default is <see cref="HttpStatusCode.OK"/>.</param>
+        /// <returns>An <see cref="ApiResult"/> representing a successful operation with the given status code.</returns>
+        public static ApiResult Ok(HttpStatusCode statusCode = HttpStatusCode.OK)
+            => new(statusCode);
+
+        /// <inheritdoc cref="IApiResult{TSelf}.Fail(string, string?, HttpStatusCode)"/>
         public static ApiResult Fail(string error, string? errorCode = null, HttpStatusCode statusCode = HttpStatusCode.BadRequest)
             => new(error, errorCode, statusCode);
-        public static ApiResult Ok(HttpStatusCode statusCode)
-            => new(statusCode);
+
+        /// <inheritdoc cref="IResult{TSelf, TErrorCode}.Short(IResult{TErrorCode})"/>
         public static ApiResult Short(IResult<string> result) => Fail(result.Error, result.ErrorCode);
     }
 
+    /// <inheritdoc cref="IApiResult{TSelf, TData}"/>
     public record ApiResult<TData> : IApiResult<ApiResult<TData>, TData>
     {
         public HttpStatusCode StatusCode { get; } = HttpStatusCode.Ambiguous;
@@ -57,11 +67,15 @@ namespace Codespirals.Solutions.ApiCaller
             ErrorCode = errorCode;
         }
 
+        /// <inheritdoc cref="IApiResult{TSelf, TData}.Ok(TData, HttpStatusCode)"/>
         public static ApiResult<TData> Ok(TData data, HttpStatusCode statusCode)
             => new(data, statusCode);
+        /// <inheritdoc cref="IResultWithData{TSelf, TErrorCode, TData}.Ok(TData)"/>
         public static ApiResult<TData> Ok(TData data) => Ok(data, HttpStatusCode.OK);
+        /// <inheritdoc cref="IApiResult{TSelf}.Fail(string, string?, HttpStatusCode)"/>
         public static ApiResult<TData> Fail(string error, string? errorCode = null, HttpStatusCode statusCode = HttpStatusCode.BadRequest)
             => new(error, errorCode, statusCode);
+        /// <inheritdoc cref="IResult{TSelf, TErrorCode}.Short(IResult{TErrorCode})"/>
         public static ApiResult<TData> Short(IResult<string> result) => Fail(result.Error, result.ErrorCode);
     }
 }

@@ -23,14 +23,6 @@ namespace Codespirals.Solutions.ApiCaller
         /// <inheritdoc cref="IResult{TErrorCode}.ErrorCode"/>
         public string? ErrorCode { get; }
 
-        private ApiSearchResult(IEnumerable<TData> unformattedData, TFilter parameters, HttpStatusCode statusCode)
-        {
-            Success = true;
-            StatusCode = statusCode;
-            Data = unformattedData.ApplyFilterParameters(parameters, short.MaxValue, out int totalResults);
-            Parameters = parameters;
-            TotalResults = totalResults;
-        }
         private ApiSearchResult(IEnumerable<TData> formattedData, TFilter parameters, int totalResult, HttpStatusCode statusCode)
         {
             Success = true;
@@ -50,22 +42,14 @@ namespace Codespirals.Solutions.ApiCaller
         {
             Parameters = parameters;
         }
-
-        public static ApiSearchResult<TData, TFilter> Fail(string error, string? errorCode = null, HttpStatusCode statusCode = HttpStatusCode.BadRequest)
-            => new(error, errorCode, statusCode);
+        /// <inheritdoc />
         public static ApiSearchResult<TData, TFilter> Fail(TFilter parameters, string error, string? errorCode = null, HttpStatusCode statusCode = HttpStatusCode.BadRequest)
             => new(parameters, error, errorCode, statusCode);
-        public static ApiSearchResult<TData, TFilter> Fail(TFilter filter, string error, string? errorCode = null)
-            => Fail(filter, error, errorCode, HttpStatusCode.BadRequest);
-        public static ApiSearchResult<TData, TFilter> Ok(IEnumerable<TData> formattedData, TFilter filter, int totalResults)
-            => Ok(formattedData, filter, totalResults, HttpStatusCode.OK);
-        public static ApiSearchResult<TData, TFilter> Ok(IEnumerable<TData> filteredData, TFilter parameters, int totalResults, HttpStatusCode statusCode)
+        /// <inheritdoc />
+        public static ApiSearchResult<TData, TFilter> Ok(IEnumerable<TData> filteredData, TFilter parameters, int totalResults, HttpStatusCode statusCode = HttpStatusCode.OK)
             => new(filteredData, parameters, totalResults, statusCode);
-        public static ApiSearchResult<TData, TFilter> OkAndFormat(IEnumerable<TData> unformattedData, TFilter filter)
-            => OkAndFormat(unformattedData, filter, HttpStatusCode.OK);
-        public static ApiSearchResult<TData, TFilter> OkAndFormat(IEnumerable<TData> unfliteredData, TFilter parameters, HttpStatusCode statusCode)
-            => new(unfliteredData, parameters, statusCode);
-
-        public static ApiSearchResult<TData, TFilter> Short(IResult<string> result) => Fail(result.Error, result.ErrorCode);
+        /// <inheritdoc cref="IResult{TSelf, TErrorCode}.Short(IResult{TErrorCode})"/>
+        public static ApiSearchResult<TData, TFilter> Short(IResult<string> result) 
+            => new(result.Error, result.ErrorCode, HttpStatusCode.BadRequest);
     }
 }
