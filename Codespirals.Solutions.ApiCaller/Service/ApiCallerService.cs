@@ -20,7 +20,7 @@ namespace Codespirals.Solutions.ApiCaller;
 public class ApiCallerService : IApiCallerService
 {
     private readonly HttpClient _httpClient;
-    private readonly ILogger _logger;
+    private readonly ILogger<ApiCallerService> _logger;
 
     /// <inheritdoc/>
     public string BaseUrl { get; }

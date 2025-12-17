@@ -9,9 +9,9 @@ namespace Codespirals.Solutions.ApiCaller;
 public class HttpRequestBuilder
 {
     private readonly HttpClient _httpClient;
-    private readonly ILogger _logger;
+    private readonly ILogger<ApiCallerService> _logger;
     private readonly HttpRequestMessage Request;
-    internal HttpRequestBuilder(HttpClient client, ILogger logger)
+    internal HttpRequestBuilder(HttpClient client, ILogger<ApiCallerService> logger)
     {
         _httpClient = client;
         _logger = logger;

@@ -4,7 +4,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Title>$(AssemblyName)</Title>
-    <Version>0.4.118.25349</Version>
+    <Version>0.4.121.25351</Version>
     <Description>An easily implementable service to call an API with.</Description>
     <PackageReadmeFile>
     </PackageReadmeFile>
