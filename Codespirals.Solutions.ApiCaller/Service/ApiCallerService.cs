@@ -89,67 +89,66 @@ public class ApiCallerService : IApiCallerService
     public void AddDefaultHeader(string name, string? value = null)
         => _httpClient.DefaultRequestHeaders.Add(name, value);
 
-    /// <inheritdoc/>
     public HttpRequestBuilder BeginCustomApiCall()
-        => new(_httpClient, _logger);
+        => HttpRequestBuilder.BeginCustomApiCall(_httpClient, _logger);
 
     /// <inheritdoc/>
     public async Task<ApiResult> Get(string slug = "", params List<KeyValuePair<string, string>> additionalQueryParameters)
-        => await BeginCustomApiCall().WithEndpoint(slug, additionalQueryParameters).Send();
+        => await HttpRequestBuilder.BeginCustomApiCall(_httpClient, _logger).WithEndpoint(slug, additionalQueryParameters).Send();
 
     /// <inheritdoc/>
     public async Task<ApiResult<TData>> Get<TData>(string slug = "", params List<KeyValuePair<string, string>> additionalQueryParameters)
-        => await BeginCustomApiCall().WithEndpoint(slug, additionalQueryParameters).Send<TData>();
+        => await HttpRequestBuilder.BeginCustomApiCall(_httpClient, _logger).WithEndpoint(slug, additionalQueryParameters).Send<TData>();
 
     /// <inheritdoc/>
     public async Task<ApiResult> Post<TBody>(TBody body, string slug = "", params List<KeyValuePair<string, string>> additionalQueryParameters)
-        => await BeginCustomApiCall().WithEndpoint(slug, additionalQueryParameters).WithBody(body).Send(HttpMethod.Post);
+        => await HttpRequestBuilder.BeginCustomApiCall(_httpClient, _logger).WithEndpoint(slug, additionalQueryParameters).WithBody(body).Send(HttpMethod.Post);
 
     /// <inheritdoc/>
     public async Task<ApiResult<TData>> Post<TData, TBody>(TBody body, string slug = "", params List<KeyValuePair<string, string>> additionalQueryParameters)
-        => await BeginCustomApiCall().WithEndpoint(slug, additionalQueryParameters).WithBody(body).Send<TData>(HttpMethod.Post);
+        => await HttpRequestBuilder.BeginCustomApiCall(_httpClient, _logger).WithEndpoint(slug, additionalQueryParameters).WithBody(body).Send<TData>(HttpMethod.Post);
 
     /// <inheritdoc/>
     public async Task<ApiResult> Put<TBody>(TBody body, string slug = "", params List<KeyValuePair<string, string>> additionalQueryParameters)
-        => await BeginCustomApiCall().WithEndpoint(slug, additionalQueryParameters).WithBody(body).Send(HttpMethod.Put);
+        => await HttpRequestBuilder.BeginCustomApiCall(_httpClient, _logger).WithEndpoint(slug, additionalQueryParameters).WithBody(body).Send(HttpMethod.Put);
 
     /// <inheritdoc/>
     public async Task<ApiResult<TData>> Put<TData, TBody>(TBody body, string slug = "", params List<KeyValuePair<string, string>> additionalQueryParameters)
-        => await BeginCustomApiCall().WithEndpoint(slug, additionalQueryParameters).WithBody(body).Send<TData>(HttpMethod.Put);
+        => await HttpRequestBuilder.BeginCustomApiCall(_httpClient, _logger).WithEndpoint(slug, additionalQueryParameters).WithBody(body).Send<TData>(HttpMethod.Put);
 
     /// <inheritdoc/>
     public async Task<ApiResult> Patch<TBody>(TBody body, string slug = "", params List<KeyValuePair<string, string>> additionalQueryParameters)
-        => await BeginCustomApiCall().WithEndpoint(slug, additionalQueryParameters).WithBody(body).Send(HttpMethod.Patch);
+        => await HttpRequestBuilder.BeginCustomApiCall(_httpClient, _logger).WithEndpoint(slug, additionalQueryParameters).WithBody(body).Send(HttpMethod.Patch);
 
     /// <inheritdoc/>
     public async Task<ApiResult<TData>> Patch<TData, TBody>(TBody body, string slug = "", params List<KeyValuePair<string, string>> additionalQueryParameters)
-        => await BeginCustomApiCall().WithEndpoint(slug, additionalQueryParameters).WithBody(body).Send<TData>(HttpMethod.Patch);
+        => await HttpRequestBuilder.BeginCustomApiCall(_httpClient, _logger).WithEndpoint(slug, additionalQueryParameters).WithBody(body).Send<TData>(HttpMethod.Patch);
 
     /// <inheritdoc/>
     public async Task<ApiFilteredListResult<TData, TFilterParameters>> GetPaginated<TData, TResponse, TFilterParameters>(TFilterParameters parameters, string slug = "", params List<KeyValuePair<string, string>> additionalQueryParameters)
         where TFilterParameters : IFilterParameters, new()
         where TResponse : IPagination<TFilterParameters>, IHasData<IEnumerable<TData>>
-        => await BeginCustomApiCall().WithEndpoint(slug, additionalQueryParameters).Search<TData, TResponse, TFilterParameters, ApiFilteredListResult<TData, TFilterParameters>>(parameters);
+        => await HttpRequestBuilder.BeginCustomApiCall(_httpClient, _logger).WithEndpoint(slug, additionalQueryParameters).Search<TData, TResponse, TFilterParameters, ApiFilteredListResult<TData, TFilterParameters>>(parameters);
 
     /// <inheritdoc/>
     public async Task<ApiSearchResult<TData, TSearchParameters>> Search<TData, TResponse, TSearchParameters>(TSearchParameters parameters, string slug = "", params List<KeyValuePair<string, string>> additionalQueryParameters)
         where TSearchParameters : ISearchParameters, new()
         where TResponse : IPagination<TSearchParameters>, IHasData<IEnumerable<TData>>
-        => await BeginCustomApiCall().WithEndpoint(slug, additionalQueryParameters).Search<TData, TResponse, TSearchParameters, ApiSearchResult<TData, TSearchParameters>>(parameters);
+        => await HttpRequestBuilder.BeginCustomApiCall(_httpClient, _logger).WithEndpoint(slug, additionalQueryParameters).Search<TData, TResponse, TSearchParameters, ApiSearchResult<TData, TSearchParameters>>(parameters);
 
     /// <inheritdoc/>
     public async Task<ApiResult> Delete(string slug = "", params List<KeyValuePair<string, string>> additionalQueryParameters)
-        => await BeginCustomApiCall().WithEndpoint(slug, additionalQueryParameters).Send(HttpMethod.Delete);
+        => await HttpRequestBuilder.BeginCustomApiCall(_httpClient, _logger).WithEndpoint(slug, additionalQueryParameters).Send(HttpMethod.Delete);
 
     /// <inheritdoc/>
     public async Task<ApiResult<TData>> Connect<TData>(int port, string slug = "", params List<KeyValuePair<string, string>> additionalQueryParameters)
-        => await BeginCustomApiCall().WithEndpoint($"{slug}:{port}", additionalQueryParameters).Send<TData>(HttpMethod.Connect);
+        => await HttpRequestBuilder.BeginCustomApiCall(_httpClient, _logger).WithEndpoint($"{slug}:{port}", additionalQueryParameters).Send<TData>(HttpMethod.Connect);
 
     /// <inheritdoc/>
     public async Task<ApiResult<HttpHeaderValueCollection<string>>> Options(string slug = "", params List<KeyValuePair<string, string>> additionalQueryParameters)
-        => await BeginCustomApiCall().WithEndpoint(slug, additionalQueryParameters).Options();
+        => await HttpRequestBuilder.BeginCustomApiCall(_httpClient, _logger).WithEndpoint(slug, additionalQueryParameters).Options();
 
     /// <inheritdoc/>
     public async Task<ApiResult<HttpHeaders>> Head(string slug = "", params List<KeyValuePair<string, string>> additionalQueryParameters)
-        => await BeginCustomApiCall().WithEndpoint(slug, additionalQueryParameters).Head();
+        => await HttpRequestBuilder.BeginCustomApiCall(_httpClient, _logger).WithEndpoint(slug, additionalQueryParameters).Head();
 }

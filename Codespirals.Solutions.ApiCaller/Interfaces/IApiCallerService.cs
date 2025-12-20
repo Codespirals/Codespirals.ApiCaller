@@ -44,14 +44,10 @@ public interface IApiCallerService : INameable
     public void AddDefaultHeader(string name, string value);
 
     /// <summary>
-    /// Begins the construction of a custom API call by returning an instance of <see cref="HttpRequestBuilder"/>.
+    /// Begin building a custom Api Call
     /// </summary>
-    /// <remarks>Use the returned <see cref="HttpRequestBuilder"/> to configure the HTTP request, including
-    /// setting headers, query parameters, and the request body. Once configured, the request can be executed to
-    /// interact with the target API.</remarks>
-    /// <returns>An instance of <see cref="HttpRequestBuilder"/> that allows customization of the HTTP request.</returns>
+    /// <returns>The <see cref="HttpRequestBuilder"/> with which to further build the call.</returns>
     public HttpRequestBuilder BeginCustomApiCall();
-
     /// <summary>
     /// Send a create request to the API
     /// </summary>

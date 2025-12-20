@@ -11,7 +11,7 @@ public class HttpRequestBuilder
     private readonly HttpClient _httpClient;
     private readonly ILogger<ApiCallerService> _logger;
     private readonly HttpRequestMessage Request;
-    internal HttpRequestBuilder(HttpClient client, ILogger<ApiCallerService> logger)
+    private HttpRequestBuilder(HttpClient client, ILogger<ApiCallerService> logger)
     {
         _httpClient = client;
         _logger = logger;
@@ -21,6 +21,14 @@ public class HttpRequestBuilder
             RequestUri = _httpClient.BaseAddress
         };
     }
+    /// <summary>
+    /// Becin building a custom API call
+    /// </summary>
+    /// <param name="client"></param>
+    /// <param name="logger"></param>
+    /// <returns></returns>
+    internal static HttpRequestBuilder BeginCustomApiCall(HttpClient client, ILogger<ApiCallerService> logger)
+        => new(client, logger);
     /// <summary>
     /// Configures the HTTP request with the specified endpoint and optional query parameters.
     /// </summary>
