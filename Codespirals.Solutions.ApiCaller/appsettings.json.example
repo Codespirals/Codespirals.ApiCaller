@@ -1,14 +1,15 @@
 {
 	"ApiCallerService": {
-		"Name": "CatFactApi",
-		"BaseAddress": "",
+		"Name": "ApiName",
 		"Version": "",
 		"DefaultCredentials": {
 			"Key": {
-				"MyApp_Key": "Key"
+				"Name": "MyApp_Key",
+				"Value"	: "Key"
 			},
 			"Id": {
-				"MyApp_User": "Id"
+				"Name": "MyApp_User",
+				"Value": "Id"
 			}
 		},
 		"Environment": "Development"

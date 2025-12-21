@@ -1,65 +1,26 @@
-﻿using Codespirals.Base.Attributes;
-using Codespirals.Base.Filtering;
+﻿using Codespirals.Base.Filtering;
 using Codespirals.Base.Results;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using System.Net.Http.Headers;
 using System.Reflection;
 
 namespace Codespirals.Solutions.ApiCaller;
-/// <summary>
-/// The implementation of the API service
-/// </summary>
-/// <remarks>
-/// The API service to send requests to the API
-/// </remarks>
-/// <param name="logger">The logger</param>
-[InjectableService(typeof(IApiCallerService), defaultLifetime: ServiceLifetime.Transient, optionType: typeof(ApiCallerOptions))]
-[RequiredConfigurationSetting(nameof(ApiCallerOptions.BaseAddress))]
-public class ApiCallerService : IApiCallerService
+public class ApiCaller
 {
+    private readonly ILogger<ApiCallerFactory> _logger;
     private readonly HttpClient _httpClient;
-    private readonly ILogger<ApiCallerService> _logger;
-
     /// <inheritdoc/>
     public string BaseUrl { get; }
-    /// <inheritdoc/>
-    public string Name { get; }
-    /// <summary>
-    /// The API service to send requests to the API
-    /// </summary>
-    /// <param name="logger">The logger</param>
-    /// <param name="options">An option set with which to inject settings like <see cref="ApiCallerOptions.BaseAddress"/></param>
-    public ApiCallerService(ILogger<ApiCallerService> logger, IOptions<ApiCallerOptions> options)
+
+    private ApiCaller(ILogger<ApiCallerFactory> logger, string baseUrl)
     {
         _logger = logger;
-        BaseUrl = options.Value.BaseAddress;
-
-        if (string.IsNullOrWhiteSpace(options.Value.Name))
-        {
-            try
-            {
-                string domain = RegularExpressions.MatchDomainPrefixes().Replace(BaseUrl, string.Empty);
-                int index = domain.IndexOf('.');
-                Name = $"{domain[0].ToString().ToUpper()}{domain.Substring(1, index).ToLowerInvariant()}-api";
-            }
-            catch (Exception)
-            {
-                Name = nameof(ApiCallerService);
-            }
-        }
-        else
-            Name = options.Value.Name;
-
-        _httpClient = new HttpClient
-        {
-            BaseAddress = new Uri(BaseUrl)
-        };
-        SetDefaultVersion(options.Value.Version);
-        SetDefaultApiCredentials(options.Value.DefaultCredentials);
-        SetDefaultUserAgent(options.Value.UserAgent, options.Value.Version);
+        BaseUrl = baseUrl;
+        _httpClient = new HttpClient();
     }
+    internal static ApiCaller InitiateApiCaller(ILogger<ApiCallerFactory> logger, string baseUrl)
+        => new(logger, baseUrl);
+
     /// <inheritdoc/>
     public void SetDefaultVersion(Version? version)
     {
@@ -76,13 +37,13 @@ public class ApiCallerService : IApiCallerService
         _httpClient.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(userAgent, version?.ToString(2)));
     }
     /// <inheritdoc/>
-    public void SetDefaultApiCredentials(ApiCredentials? credentials)
+    public void SetDefaultApiCredentials(string keyName, string key, string? idName = null, string? id = null)
     {
-        if (credentials is null)
+        if (string.IsNullOrWhiteSpace(keyName))
             return;
-        if (credentials.Id is not null)
-            AddDefaultHeader(credentials.Id.Value.Name, credentials.Id.Value.Value);
-        AddDefaultHeader(credentials.Key.Name, credentials.Key.Value);
+        if (!string.IsNullOrWhiteSpace(idName))
+            AddDefaultHeader(idName, id);
+        AddDefaultHeader(keyName, key);
     }
 
     /// <inheritdoc/>
@@ -151,4 +112,5 @@ public class ApiCallerService : IApiCallerService
     /// <inheritdoc/>
     public async Task<ApiResult<HttpHeaders>> Head(string slug = "", params List<KeyValuePair<string, string>> additionalQueryParameters)
         => await HttpRequestBuilder.BeginCustomApiCall(_httpClient, _logger).WithEndpoint(slug, additionalQueryParameters).Head();
+
 }

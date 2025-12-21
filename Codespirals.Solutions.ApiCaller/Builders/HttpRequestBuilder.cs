@@ -9,9 +9,9 @@ namespace Codespirals.Solutions.ApiCaller;
 public class HttpRequestBuilder
 {
     private readonly HttpClient _httpClient;
-    private readonly ILogger<ApiCallerService> _logger;
+    private readonly ILogger<ApiCallerFactory> _logger;
     private readonly HttpRequestMessage Request;
-    private HttpRequestBuilder(HttpClient client, ILogger<ApiCallerService> logger)
+    private HttpRequestBuilder(HttpClient client, ILogger<ApiCallerFactory> logger)
     {
         _httpClient = client;
         _logger = logger;
@@ -27,7 +27,7 @@ public class HttpRequestBuilder
     /// <param name="client"></param>
     /// <param name="logger"></param>
     /// <returns></returns>
-    internal static HttpRequestBuilder BeginCustomApiCall(HttpClient client, ILogger<ApiCallerService> logger)
+    internal static HttpRequestBuilder BeginCustomApiCall(HttpClient client, ILogger<ApiCallerFactory> logger)
         => new(client, logger);
     /// <summary>
     /// Configures the HTTP request with the specified endpoint and optional query parameters.
@@ -93,11 +93,11 @@ public class HttpRequestBuilder
     /// an additional header.</remarks>
     /// <param name="credentials">The API credentials containing the key and optional ID to include in the request headers.</param>
     /// <returns>The current <see cref="HttpRequestBuilder"/> instance, allowing for method chaining.</returns>
-    public HttpRequestBuilder WithCredentials(ApiCredentials credentials)
+    public HttpRequestBuilder WithCredentials(string keyName, string key, string? idName = null, string? id = null)
     {
-        WithHeader(credentials.Key.Name, credentials.Key.Value);
-        if (credentials.Id is not null)
-            WithHeader(credentials.Id.Value.Name, credentials.Id.Value.Value);
+        if (!string.IsNullOrWhiteSpace(idName))
+            WithHeader(idName, id);
+        WithHeader(keyName, key);
         return this;
     }
     /// <summary>
@@ -266,5 +266,4 @@ public class HttpRequestBuilder
             return;
         Request.RequestUri = new Uri($"{uri}{filter.ToQueryString()}");
     }
-
 }
