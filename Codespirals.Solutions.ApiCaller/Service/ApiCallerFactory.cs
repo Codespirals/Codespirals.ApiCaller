@@ -13,6 +13,6 @@ public class ApiCallerFactory(ILogger<ApiCallerFactory> logger) : IApiCallerFact
     private readonly ILogger<ApiCallerFactory> _logger = logger;
 
     /// <inheritdoc />
-    public ApiCaller InitializeApiCaller(string baseUrl)
-        => ApiCaller.InitiateApiCaller(_logger, baseUrl);
+    public ApiCaller InitializeApiCaller(string baseUrl, string? userAgent = null)
+        => ApiCaller.InitiateApiCaller(_logger, baseUrl, userAgent);
 }

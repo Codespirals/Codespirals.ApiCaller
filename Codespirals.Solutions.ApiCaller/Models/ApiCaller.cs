@@ -10,16 +10,17 @@ public class ApiCaller
     private readonly ILogger<ApiCallerFactory> _logger;
     private readonly HttpClient _httpClient;
 
-    private ApiCaller(ILogger<ApiCallerFactory> logger, string baseUrl)
+    private ApiCaller(ILogger<ApiCallerFactory> logger, string baseUrl, string? userAgent = null)
     {
         _logger = logger;
-        _httpClient = new HttpClient() 
-        { 
-            BaseAddress = new Uri(baseUrl) 
+        _httpClient = new HttpClient()
+        {
+            BaseAddress = new Uri(baseUrl)
         };
+        SetDefaultUserAgent(userAgent);
     }
-    internal static ApiCaller InitiateApiCaller(ILogger<ApiCallerFactory> logger, string baseUrl)
-        => new(logger, baseUrl);
+    internal static ApiCaller InitiateApiCaller(ILogger<ApiCallerFactory> logger, string baseUrl, string? userAgent = null)
+        => new(logger, baseUrl, userAgent);
 
     /// <summary>
     /// Set the default version of the <see cref="ApiCaller"/>
@@ -37,11 +38,11 @@ public class ApiCaller
     /// </summary>
     /// <param name="userAgent">The user agent</param>
     /// <param name="version">The new version</param>
-    public void SetDefaultUserAgent(string? userAgent, Version? version)
+    public void SetDefaultUserAgent(string? userAgent, Version? version = null)
     {
-        userAgent ??= Assembly.GetExecutingAssembly().FullName;
         if (userAgent is null)
             return;
+        _httpClient.DefaultRequestHeaders.UserAgent.Clear();
         _httpClient.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(userAgent, version?.ToString(2)));
     }
 
