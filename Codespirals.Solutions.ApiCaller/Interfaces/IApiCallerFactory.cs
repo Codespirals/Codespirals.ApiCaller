@@ -4,5 +4,10 @@
 /// </summary>
 public interface IApiCallerFactory
 {
+    /// <summary>
+    /// Create a new Api Caller with the specific base URL
+    /// </summary>
+    /// <param name="baseUrl">The url of the API</param>
+    /// <returns>The Api Caller</returns>
     public ApiCaller InitializeApiCaller(string baseUrl);
 }
