@@ -7,9 +7,7 @@ builder.Services.AddRazorPages();
 
 builder.Logging.AddDebug().SetMinimumLevel(LogLevel.Debug);
 
-/// Add the api service to your services with the following command:
-builder.Services.Configure<ApiCallerOptions>(builder.Configuration.GetSection(nameof(ApiCallerService)));
-builder.Services.AddTransient<IApiCallerService, ApiCallerService>();
+builder.Services.AddTransient<IApiCallerFactory, ApiCallerFactory>();
 
 /// add your newly created service that uses the <see cref="ApiCallerService"/>
 builder.Services.AddScoped<IApiExampleService, ApiExampleService>();

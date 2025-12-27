@@ -4,7 +4,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Title>$(AssemblyName)</Title>
-    <Version>0.4.129.25356</Version>
+    <Version>1.0.3.25361</Version>
     <Description>An easily implementable service to call an API with.</Description>
     <PackageReadmeFile>
     </PackageReadmeFile>
@@ -30,21 +30,14 @@
     <NoWarn>1701;1702;IDE0130;</NoWarn>
   </PropertyGroup>
   <ItemGroup>
-    <Content Include="appsettings.json.example">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="..\..\Codespirals.Base\Codespirals.Base.Shared\Resources\Images\logo.png">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Codespirals.Base.Shared" Version="1.0.182.25349" />
-    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.10" />
+    <PackageReference Include="Codespirals.Base.Shared" Version="1.0.190.25360" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.11" />
   </ItemGroup>
   <ItemGroup>
     <Using Include="Codespirals.Base" />

@@ -126,7 +126,7 @@ public class HttpRequestBuilder
         Request.Method = method ?? HttpMethod.Get;
         using IDisposable? log = _logger.BeginLoggingApiCall(method?.Method, Request.RequestUri?.PathAndQuery);
         using HttpResponseMessage response = await _httpClient.SendAsync(Request, HttpCompletionOption.ResponseContentRead);
-        _logger.LogApiResponse(response);
+        await _logger.LogApiResponse(response);
         if (!response.IsSuccessStatusCode)
         {
             _logger.LogApiFail(response.ReasonPhrase);
@@ -149,7 +149,7 @@ public class HttpRequestBuilder
         Request.Method = method ?? HttpMethod.Get;
         using IDisposable? log = _logger.BeginLoggingApiCall(method?.Method, Request.RequestUri?.PathAndQuery);
         using HttpResponseMessage response = await _httpClient.SendAsync(Request, HttpCompletionOption.ResponseContentRead);
-        _logger.LogApiResponse(response);
+        await _logger.LogApiResponse(response);
         if (!response.IsSuccessStatusCode)
         {
             _logger.LogApiFail(response.ReasonPhrase);
@@ -255,7 +255,7 @@ public class HttpRequestBuilder
     private async Task<HttpResponseHeaders?> GetHeaders()
     {
         using HttpResponseMessage response = await _httpClient.SendAsync(Request, HttpCompletionOption.ResponseContentRead);
-        _logger.LogApiResponse(response);
+        await _logger.LogApiResponse(response);
         return response.Headers;
     }
     private void AddSearchParametersToQuery<TFilter>(TFilter filter)

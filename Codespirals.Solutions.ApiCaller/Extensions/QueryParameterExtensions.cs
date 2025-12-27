@@ -1,4 +1,5 @@
-﻿using Codespirals.Base.Filtering;
+﻿using Codespirals.Base.Extensions;
+using Codespirals.Base.Filtering;
 using System.Text;
 
 namespace Codespirals.Solutions.ApiCaller;

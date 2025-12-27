@@ -5,9 +5,9 @@
         Task<CatFact?> GetCatFact();
     }
 
-    public class ApiExampleService(IApiCallerService apiService) : IApiExampleService
+    public class ApiExampleService(IApiCallerFactory apiCallerFactory) : IApiExampleService
     {
-        private readonly IApiCallerService _apiService = apiService;
+        private readonly ApiCaller _apiService = apiCallerFactory.InitializeApiCaller("https://catfact.ninja", "api-caller-test");
 
         public async Task<CatFact?> GetCatFact()
         {

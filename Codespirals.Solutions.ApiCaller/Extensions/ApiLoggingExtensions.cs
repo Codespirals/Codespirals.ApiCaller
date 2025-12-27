@@ -15,10 +15,10 @@ namespace Codespirals.Solutions.ApiCaller
         }
         internal static void LogApiRequest(this ILogger<ApiCallerFactory> logger, HttpRequestMessage request)
             => logger.LogStep(LoggingExtensions.State.InProgress, $"Sending {request.Method} request call to {request.RequestUri}\nWith data: {request.Content?.ReadAsStream().ToString() ?? "No data"}");
-        internal static void LogApiResponse(this ILogger<ApiCallerFactory> logger, HttpResponseMessage response)
+        internal static async Task LogApiResponse(this ILogger<ApiCallerFactory> logger, HttpResponseMessage response)
         {
-            string? content = response.Content.IsText() ? response.Content.ToString() : "No Content";
-            logger.LogStep(LoggingExtensions.State.InProgress, $"Error Code: {response.StatusCode} Content: {content}");
+            string? content = await response.Content.ReadAsStringAsync();
+            logger.LogStep(LoggingExtensions.State.InProgress, $"Status Code: {(int)response.StatusCode}\nContent: {content}");
         }
         internal static void LogApiResponseHeaders(this ILogger<ApiCallerFactory> logger, HttpResponseMessage response)
         {
