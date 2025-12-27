@@ -3,18 +3,12 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace Codespirals.ApiCaller.Example
 {
-    public class IndexModel : PageModel
+    public class IndexModel(ILogger<IndexModel> logger, IApiExampleService apiExampleService) : PageModel
     {
-        private readonly ILogger<IndexModel> _logger;
-        private readonly IApiExampleService _exampleService;
+        private readonly ILogger<IndexModel> _logger = logger;
+        private readonly IApiExampleService _exampleService = apiExampleService;
 
         public string CatFact { get; set; } = Solutions.ApiCaller.Example.Resources.ExampleText.ErrorMessage;
-
-        public IndexModel(ILogger<IndexModel> logger, IApiExampleService apiExampleService)
-        {
-            _logger = logger;
-            _exampleService = apiExampleService;
-        }
 
         public async Task OnGetAsync()
         {

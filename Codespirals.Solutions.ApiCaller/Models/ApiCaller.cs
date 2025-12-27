@@ -103,7 +103,7 @@ public class ApiCaller
     /// <param name="slug">The slug to prepend to the base url</param>
     /// <param name="additionalQueryParameters">Optional additional parameters</param>
     /// <returns>An <see cref="ApiResult"/></returns>
-    public async Task<ApiResult> Post<TBody>(TBody body, string slug = "", params List<KeyValuePair<string, string>> additionalQueryParameters)
+    public async Task<ApiResult> Post<TBody>(string slug = "", TBody? body = default, params List<KeyValuePair<string, string>> additionalQueryParameters)
         => await HttpRequestBuilder.BeginCustomApiCall(_httpClient, _logger).WithEndpoint(slug, additionalQueryParameters).WithBody(body).Send(HttpMethod.Post);
 
     /// <summary>
@@ -115,7 +115,7 @@ public class ApiCaller
     /// <param name="slug">The slug to prepend to the base url</param>
     /// <param name="additionalQueryParameters">Optional additional parameters</param>
     /// <returns>An <see cref="ApiResult"/> containing the requested data</returns>
-    public async Task<ApiResult<TData>> Post<TData, TBody>(TBody body, string slug = "", params List<KeyValuePair<string, string>> additionalQueryParameters)
+    public async Task<ApiResult<TData>> Post<TData, TBody>(string slug = "", TBody? body = default, params List<KeyValuePair<string, string>> additionalQueryParameters)
         => await HttpRequestBuilder.BeginCustomApiCall(_httpClient, _logger).WithEndpoint(slug, additionalQueryParameters).WithBody(body).Send<TData>(HttpMethod.Post);
 
     /// <summary>
@@ -126,7 +126,7 @@ public class ApiCaller
     /// <param name="slug">The slug to prepend to the base url</param>
     /// <param name="additionalQueryParameters">Optional additional parameters</param>
     /// <returns>An <see cref="ApiResult"/></returns>
-    public async Task<ApiResult> Put<TBody>(TBody body, string slug = "", params List<KeyValuePair<string, string>> additionalQueryParameters)
+    public async Task<ApiResult> Put<TBody>(string slug = "", TBody? body = default, params List<KeyValuePair<string, string>> additionalQueryParameters)
         => await HttpRequestBuilder.BeginCustomApiCall(_httpClient, _logger).WithEndpoint(slug, additionalQueryParameters).WithBody(body).Send(HttpMethod.Put);
 
     /// <summary>
@@ -138,7 +138,7 @@ public class ApiCaller
     /// <param name="slug">The slug to prepend to the base url</param>
     /// <param name="additionalQueryParameters">Optional additional parameters</param>
     /// <returns>An <see cref="ApiResult"/> containing the requested data</returns>
-    public async Task<ApiResult<TData>> Put<TData, TBody>(TBody body, string slug = "", params List<KeyValuePair<string, string>> additionalQueryParameters)
+    public async Task<ApiResult<TData>> Put<TData, TBody>(string slug = "", TBody? body = default, params List<KeyValuePair<string, string>> additionalQueryParameters)
         => await HttpRequestBuilder.BeginCustomApiCall(_httpClient, _logger).WithEndpoint(slug, additionalQueryParameters).WithBody(body).Send<TData>(HttpMethod.Put);
 
     /// <summary>
@@ -149,7 +149,7 @@ public class ApiCaller
     /// <param name="slug">The slug to prepend to the base url</param>
     /// <param name="additionalQueryParameters">Optional additional parameters</param>
     /// <returns>An <see cref="ApiResult"/></returns>
-    public async Task<ApiResult> Patch<TBody>(TBody body, string slug = "", params List<KeyValuePair<string, string>> additionalQueryParameters)
+    public async Task<ApiResult> Patch<TBody>(string slug = "", TBody? body = default, params List<KeyValuePair<string, string>> additionalQueryParameters)
         => await HttpRequestBuilder.BeginCustomApiCall(_httpClient, _logger).WithEndpoint(slug, additionalQueryParameters).WithBody(body).Send(HttpMethod.Patch);
 
     /// <summary>
@@ -161,7 +161,7 @@ public class ApiCaller
     /// <param name="slug">The slug to prepend to the base url</param>
     /// <param name="additionalQueryParameters">Optional additional parameters</param>
     /// <returns>An <see cref="ApiResult"/> containing the requested data</returns>
-    public async Task<ApiResult<TData>> Patch<TData, TBody>(TBody body, string slug = "", params List<KeyValuePair<string, string>> additionalQueryParameters)
+    public async Task<ApiResult<TData>> Patch<TData, TBody>(string slug = "", TBody? body = default, params List<KeyValuePair<string, string>> additionalQueryParameters)
         => await HttpRequestBuilder.BeginCustomApiCall(_httpClient, _logger).WithEndpoint(slug, additionalQueryParameters).WithBody(body).Send<TData>(HttpMethod.Patch);
 
     /// <summary>

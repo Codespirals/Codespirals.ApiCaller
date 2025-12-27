@@ -47,10 +47,15 @@ namespace Codespirals.Solutions.ApiCaller
     /// <inheritdoc cref="IApiResult{TSelf, TData}"/>
     public record ApiResult<TData> : IApiResult<ApiResult<TData>, TData>
     {
+        /// <inheritdoc cref="IApiResult.StatusCode"/>
         public HttpStatusCode StatusCode { get; } = HttpStatusCode.Ambiguous;
+        /// <inheritdoc cref="IResult{T}.Success"/>
         public bool Success { get; }
+        /// <inheritdoc cref="IHasData{TData}.Data"/>
         public TData? Data { get; }
+        /// <inheritdoc cref="IResult{TErrorCode}.ErrorCode"/>
         public string? ErrorCode { get; }
+        /// <inheritdoc cref="IResult{TErrorCode}.Error"/>
         public string Error { get; } = "";
 
         private ApiResult(TData data, HttpStatusCode statusCode)

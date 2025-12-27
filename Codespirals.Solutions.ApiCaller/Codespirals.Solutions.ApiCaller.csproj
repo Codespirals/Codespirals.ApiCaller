@@ -4,12 +4,11 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Title>$(AssemblyName)</Title>
-    <Version>1.0.3.25361</Version>
-    <Description>An easily implementable service to call an API with.</Description>
-    <PackageReadmeFile>
-    </PackageReadmeFile>
+    <Version>1.0.10.25362</Version>
+    <Description>An easily implementable, modular and customizable way to call an API with.</Description>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/Codespirals/Codespirals.Solutions.ApiCaller</RepositoryUrl>
-    <PackageTags>codespirals; api; service;</PackageTags>
+    <PackageTags>codespirals; api; </PackageTags>
     <PackageOutputPath>$(OneDrive)\NuGet</PackageOutputPath>
     <NeutralLanguage>en</NeutralLanguage>
     <PackageLicenseExpression>CC0-1.0</PackageLicenseExpression>
@@ -17,11 +16,13 @@
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Authors>codespirals</Authors>
     <Copyright>$(Company)</Copyright>
-    <PackageIcon>logo.png</PackageIcon>
+    <PackageIcon>icon.png</PackageIcon>
     <PackageProjectUrl>https://codespirals.dev/</PackageProjectUrl>
     <Company>codespirals</Company>
     <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
     <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <SignAssembly>False</SignAssembly>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <NoWarn>1701;1702;IDE0130;</NoWarn>
@@ -30,14 +31,18 @@
     <NoWarn>1701;1702;IDE0130;</NoWarn>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="..\..\Codespirals.Base\Codespirals.Base.Shared\Resources\Images\logo.png">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
+    <None Remove="Resources\Images\icon.png" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Codespirals.Base.Shared" Version="1.0.190.25360" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.11" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Images\icon.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
   <ItemGroup>
     <Using Include="Codespirals.Base" />
@@ -55,7 +60,19 @@
       <LastGenOutput>ErrorCodes.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
-  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+  <ItemGroup>
+    <None Update="AutoUpdateVersionNumber.ps1">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Update="Resources\Images\logo.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Command="PowerShell -ExecutionPolicy Bypass -NoProfile -File AutoUpdateVersionNumber.ps1" />
   </Target>
 </Project>

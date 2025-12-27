@@ -11,7 +11,7 @@
 
         public async Task<CatFact?> GetCatFact()
         {
-            var fact = await _apiService.Get<CatFact>("fact");
+            var fact = await _apiService.Post<CatFact>("fact");
             if (fact.Success)
             {
                 return fact.Data;
