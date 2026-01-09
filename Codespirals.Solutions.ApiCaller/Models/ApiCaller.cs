@@ -2,7 +2,6 @@
 using Codespirals.Base.Results;
 using Microsoft.Extensions.Logging;
 using System.Net.Http.Headers;
-using System.Reflection;
 
 namespace Codespirals.Solutions.ApiCaller;
 public class ApiCaller
