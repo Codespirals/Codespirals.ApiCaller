@@ -9,6 +9,7 @@ public interface IApiCallerFactory
     /// </summary>
     /// <param name="baseUrl">The url of the API</param>
     /// <param name="userAgent">An optional user agent to tell the API who made the calls</param>
+    /// <param name="group">An optional group to categorize the API calls</param>
     /// <returns>The Api Caller</returns>
-    public ApiCaller InitializeApiCaller(string baseUrl, string? userAgent = null);
+    public ApiCaller InitializeApiCaller(string baseUrl, string group = "", string? userAgent = null);
 }

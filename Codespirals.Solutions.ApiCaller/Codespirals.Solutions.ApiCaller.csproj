@@ -4,7 +4,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Title>$(AssemblyName)</Title>
-    <Version>1.0.10.25362</Version>
+    <Version>1.0.16.26021</Version>
     <Description>An easily implementable, modular and customizable way to call an API with.</Description>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/Codespirals/Codespirals.Solutions.ApiCaller</RepositoryUrl>
@@ -16,7 +16,7 @@
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Authors>codespirals</Authors>
     <Copyright>$(Company)</Copyright>
-    <PackageIcon>icon.png</PackageIcon>
+    <PackageIcon>logo.png</PackageIcon>
     <PackageProjectUrl>https://codespirals.dev/</PackageProjectUrl>
     <Company>codespirals</Company>
     <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
@@ -32,6 +32,7 @@
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Resources\Images\icon.png" />
+    <None Remove="Resources\Images\logo.png" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Codespirals.Base.Shared" Version="1.0.190.25360" />
@@ -42,6 +43,11 @@
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Images\logo.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
     </Resource>
   </ItemGroup>
   <ItemGroup>
@@ -67,9 +73,6 @@
     <None Update="README.md">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
-    </None>
-    <None Update="Resources\Images\logo.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">

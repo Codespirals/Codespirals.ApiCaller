@@ -4,22 +4,27 @@ using Microsoft.Extensions.Logging;
 using System.Net.Http.Headers;
 
 namespace Codespirals.Solutions.ApiCaller;
+/// <summary>
+/// A class to make API calls easier
+/// </summary>
 public class ApiCaller
 {
     private readonly ILogger<ApiCallerFactory> _logger;
     private readonly HttpClient _httpClient;
+    private string _group = "";
 
-    private ApiCaller(ILogger<ApiCallerFactory> logger, string baseUrl, string? userAgent = null)
+    private ApiCaller(ILogger<ApiCallerFactory> logger, string baseUrl, string group = "", string? userAgent = null)
     {
         _logger = logger;
         _httpClient = new HttpClient()
         {
             BaseAddress = new Uri(baseUrl)
         };
+        SetGroup(group);
         SetDefaultUserAgent(userAgent);
     }
-    internal static ApiCaller InitiateApiCaller(ILogger<ApiCallerFactory> logger, string baseUrl, string? userAgent = null)
-        => new(logger, baseUrl, userAgent);
+    internal static ApiCaller InitiateApiCaller(ILogger<ApiCallerFactory> logger, string baseUrl, string group = "", string? userAgent = null)
+        => new(logger, baseUrl, group, userAgent);
 
     /// <summary>
     /// Set the default version of the <see cref="ApiCaller"/>
@@ -70,10 +75,21 @@ public class ApiCaller
         => _httpClient.DefaultRequestHeaders.Add(name, value);
 
     /// <summary>
+    /// Set the group of the <see cref="ApiCaller"/>
+    /// </summary>
+    /// <param name="group"></param>
+    public void SetGroup(string group = "")
+    {
+        if (string.IsNullOrWhiteSpace(group))
+            return;
+        _group = group;
+    }
+
+    /// <summary>
     /// Start building a custom API call
     /// </summary>
     public HttpRequestBuilder BeginCustomApiCall()
-        => HttpRequestBuilder.BeginCustomApiCall(_httpClient, _logger);
+        => HttpRequestBuilder.BeginCustomApiCall(_httpClient, _logger, _group);
 
     /// <summary>
     /// Make a <see cref="HttpMethod.Get"/> call
@@ -82,7 +98,7 @@ public class ApiCaller
     /// <param name="additionalQueryParameters">Optional additional parameters</param>
     /// <returns>An <see cref="ApiResult"/></returns>
     public async Task<ApiResult> Get(string slug = "", params List<KeyValuePair<string, string>> additionalQueryParameters)
-        => await HttpRequestBuilder.BeginCustomApiCall(_httpClient, _logger).WithEndpoint(slug, additionalQueryParameters).Send();
+        => await HttpRequestBuilder.BeginCustomApiCall(_httpClient, _logger, _group).WithEndpoint(slug, additionalQueryParameters).Send();
 
     /// <summary>
     /// Make a <see cref="HttpMethod.Get"/> call
@@ -92,7 +108,7 @@ public class ApiCaller
     /// <param name="additionalQueryParameters">Optional additional parameters</param>
     /// <returns>An <see cref="ApiResult"/> containing the requested data</returns>
     public async Task<ApiResult<TData>> Get<TData>(string slug = "", params List<KeyValuePair<string, string>> additionalQueryParameters)
-        => await HttpRequestBuilder.BeginCustomApiCall(_httpClient, _logger).WithEndpoint(slug, additionalQueryParameters).Send<TData>();
+        => await HttpRequestBuilder.BeginCustomApiCall(_httpClient, _logger, _group).WithEndpoint(slug, additionalQueryParameters).Send<TData>();
 
     /// <summary>
     /// Make a <see cref="HttpMethod.Post"/> call
@@ -103,7 +119,7 @@ public class ApiCaller
     /// <param name="additionalQueryParameters">Optional additional parameters</param>
     /// <returns>An <see cref="ApiResult"/></returns>
     public async Task<ApiResult> Post<TBody>(string slug = "", TBody? body = default, params List<KeyValuePair<string, string>> additionalQueryParameters)
-        => await HttpRequestBuilder.BeginCustomApiCall(_httpClient, _logger).WithEndpoint(slug, additionalQueryParameters).WithBody(body).Send(HttpMethod.Post);
+        => await HttpRequestBuilder.BeginCustomApiCall(_httpClient, _logger, _group).WithEndpoint(slug, additionalQueryParameters).WithBody(body).Send(HttpMethod.Post);
 
     /// <summary>
     /// Make a <see cref="HttpMethod.Post"/> call
@@ -115,7 +131,7 @@ public class ApiCaller
     /// <param name="additionalQueryParameters">Optional additional parameters</param>
     /// <returns>An <see cref="ApiResult"/> containing the requested data</returns>
     public async Task<ApiResult<TData>> Post<TData, TBody>(string slug = "", TBody? body = default, params List<KeyValuePair<string, string>> additionalQueryParameters)
-        => await HttpRequestBuilder.BeginCustomApiCall(_httpClient, _logger).WithEndpoint(slug, additionalQueryParameters).WithBody(body).Send<TData>(HttpMethod.Post);
+        => await HttpRequestBuilder.BeginCustomApiCall(_httpClient, _logger, _group).WithEndpoint(slug, additionalQueryParameters).WithBody(body).Send<TData>(HttpMethod.Post);
 
     /// <summary>
     /// Make a <see cref="HttpMethod.Put"/> call
@@ -126,7 +142,7 @@ public class ApiCaller
     /// <param name="additionalQueryParameters">Optional additional parameters</param>
     /// <returns>An <see cref="ApiResult"/></returns>
     public async Task<ApiResult> Put<TBody>(string slug = "", TBody? body = default, params List<KeyValuePair<string, string>> additionalQueryParameters)
-        => await HttpRequestBuilder.BeginCustomApiCall(_httpClient, _logger).WithEndpoint(slug, additionalQueryParameters).WithBody(body).Send(HttpMethod.Put);
+        => await HttpRequestBuilder.BeginCustomApiCall(_httpClient, _logger, _group).WithEndpoint(slug, additionalQueryParameters).WithBody(body).Send(HttpMethod.Put);
 
     /// <summary>
     /// Make a <see cref="HttpMethod.Put"/> call
@@ -138,7 +154,7 @@ public class ApiCaller
     /// <param name="additionalQueryParameters">Optional additional parameters</param>
     /// <returns>An <see cref="ApiResult"/> containing the requested data</returns>
     public async Task<ApiResult<TData>> Put<TData, TBody>(string slug = "", TBody? body = default, params List<KeyValuePair<string, string>> additionalQueryParameters)
-        => await HttpRequestBuilder.BeginCustomApiCall(_httpClient, _logger).WithEndpoint(slug, additionalQueryParameters).WithBody(body).Send<TData>(HttpMethod.Put);
+        => await HttpRequestBuilder.BeginCustomApiCall(_httpClient, _logger, _group).WithEndpoint(slug, additionalQueryParameters).WithBody(body).Send<TData>(HttpMethod.Put);
 
     /// <summary>
     /// Make a <see cref="HttpMethod.Patch"/> call
@@ -149,7 +165,7 @@ public class ApiCaller
     /// <param name="additionalQueryParameters">Optional additional parameters</param>
     /// <returns>An <see cref="ApiResult"/></returns>
     public async Task<ApiResult> Patch<TBody>(string slug = "", TBody? body = default, params List<KeyValuePair<string, string>> additionalQueryParameters)
-        => await HttpRequestBuilder.BeginCustomApiCall(_httpClient, _logger).WithEndpoint(slug, additionalQueryParameters).WithBody(body).Send(HttpMethod.Patch);
+        => await HttpRequestBuilder.BeginCustomApiCall(_httpClient, _logger, _group).WithEndpoint(slug, additionalQueryParameters).WithBody(body).Send(HttpMethod.Patch);
 
     /// <summary>
     /// Make a <see cref="HttpMethod.Patch"/> call
@@ -161,7 +177,7 @@ public class ApiCaller
     /// <param name="additionalQueryParameters">Optional additional parameters</param>
     /// <returns>An <see cref="ApiResult"/> containing the requested data</returns>
     public async Task<ApiResult<TData>> Patch<TData, TBody>(string slug = "", TBody? body = default, params List<KeyValuePair<string, string>> additionalQueryParameters)
-        => await HttpRequestBuilder.BeginCustomApiCall(_httpClient, _logger).WithEndpoint(slug, additionalQueryParameters).WithBody(body).Send<TData>(HttpMethod.Patch);
+        => await HttpRequestBuilder.BeginCustomApiCall(_httpClient, _logger, _group).WithEndpoint(slug, additionalQueryParameters).WithBody(body).Send<TData>(HttpMethod.Patch);
 
     /// <summary>
     /// Make an API call for a paginated list
@@ -173,10 +189,10 @@ public class ApiCaller
     /// <param name="slug">The slug to prepend to the base url</param>
     /// <param name="additionalQueryParameters">Optional additional parameters</param>
     /// <returns>An <see cref="ApiResult"/> containing the requested data</returns>
-    public async Task<ApiFilteredListResult<TData, TFilterParameters>> GetPaginated<TData, TResponse, TFilterParameters>(TFilterParameters parameters, string slug = "", params List<KeyValuePair<string, string>> additionalQueryParameters)
+    public async Task<ApiFilteredListResult<TData, TFilterParameters>> GetPaginated<TData, TResponse, TFilterParameters>(string slug = "", TFilterParameters? parameters = default, params List<KeyValuePair<string, string>> additionalQueryParameters)
         where TFilterParameters : IFilterParameters, new()
         where TResponse : IPagination<TFilterParameters>, IHasData<IEnumerable<TData>>
-        => await HttpRequestBuilder.BeginCustomApiCall(_httpClient, _logger).WithEndpoint(slug, additionalQueryParameters).Search<TData, TResponse, TFilterParameters, ApiFilteredListResult<TData, TFilterParameters>>(parameters);
+        => await HttpRequestBuilder.BeginCustomApiCall(_httpClient, _logger, _group).WithEndpoint(slug, additionalQueryParameters).Search<TData, TResponse, TFilterParameters, ApiFilteredListResult<TData, TFilterParameters>>(parameters);
 
     /// <summary>
     /// Make an API call for a paginated list further filtered through a <see cref="ISearchParameters.Query" /> parameter
@@ -188,10 +204,10 @@ public class ApiCaller
     /// <param name="slug">The slug to prepend to the base url</param>
     /// <param name="additionalQueryParameters">Optional additional parameters</param>
     /// <returns>An <see cref="ApiResult"/> containing the requested data</returns>
-    public async Task<ApiSearchResult<TData, TSearchParameters>> Search<TData, TResponse, TSearchParameters>(TSearchParameters parameters, string slug = "", params List<KeyValuePair<string, string>> additionalQueryParameters)
+    public async Task<ApiSearchResult<TData, TSearchParameters>> Search<TData, TResponse, TSearchParameters>(string slug = "", TSearchParameters? parameters = default, params List<KeyValuePair<string, string>> additionalQueryParameters)
         where TSearchParameters : ISearchParameters, new()
         where TResponse : IPagination<TSearchParameters>, IHasData<IEnumerable<TData>>
-        => await HttpRequestBuilder.BeginCustomApiCall(_httpClient, _logger).WithEndpoint(slug, additionalQueryParameters).Search<TData, TResponse, TSearchParameters, ApiSearchResult<TData, TSearchParameters>>(parameters);
+        => await HttpRequestBuilder.BeginCustomApiCall(_httpClient, _logger, _group).WithEndpoint(slug, additionalQueryParameters).Search<TData, TResponse, TSearchParameters, ApiSearchResult<TData, TSearchParameters>>(parameters);
 
     /// <summary>
     /// Make a <see cref="HttpMethod.Delete"/> call
@@ -200,7 +216,7 @@ public class ApiCaller
     /// <param name="additionalQueryParameters">Optional additional parameters</param>
     /// <returns>An <see cref="ApiResult"/></returns>
     public async Task<ApiResult> Delete(string slug = "", params List<KeyValuePair<string, string>> additionalQueryParameters)
-        => await HttpRequestBuilder.BeginCustomApiCall(_httpClient, _logger).WithEndpoint(slug, additionalQueryParameters).Send(HttpMethod.Delete);
+        => await HttpRequestBuilder.BeginCustomApiCall(_httpClient, _logger, _group).WithEndpoint(slug, additionalQueryParameters).Send(HttpMethod.Delete);
 
     /// <summary>
     /// Make a <see cref="HttpMethod.Connect"/> call
@@ -211,7 +227,7 @@ public class ApiCaller
     /// <param name="additionalQueryParameters">Optional additional parameters</param>
     /// <returns>An <see cref="ApiResult"/> containing the requested data</returns>
     public async Task<ApiResult<TData>> Connect<TData>(string slug = "", int port = 0, params List<KeyValuePair<string, string>> additionalQueryParameters)
-        => await HttpRequestBuilder.BeginCustomApiCall(_httpClient, _logger).WithEndpoint($"{slug}:{port}", additionalQueryParameters).Send<TData>(HttpMethod.Connect);
+        => await HttpRequestBuilder.BeginCustomApiCall(_httpClient, _logger, _group).WithEndpoint($"{slug}:{port}", additionalQueryParameters).Send<TData>(HttpMethod.Connect);
 
     /// <summary>
     /// Make a <see cref="HttpMethod.Options"/> call
@@ -220,7 +236,7 @@ public class ApiCaller
     /// <param name="additionalQueryParameters">Optional additional parameters</param>
     /// <returns>An <see cref="ApiResult"/> containing the requested <see cref="HttpHeaderValueCollection{T}"/></returns>
     public async Task<ApiResult<HttpHeaderValueCollection<string>>> Options(string slug = "", params List<KeyValuePair<string, string>> additionalQueryParameters)
-        => await HttpRequestBuilder.BeginCustomApiCall(_httpClient, _logger).WithEndpoint(slug, additionalQueryParameters).Options();
+        => await HttpRequestBuilder.BeginCustomApiCall(_httpClient, _logger, _group).WithEndpoint(slug, additionalQueryParameters).Options();
 
     /// <summary>
     /// Make a <see cref="HttpMethod.Head"/> call
@@ -229,5 +245,5 @@ public class ApiCaller
     /// <param name="additionalQueryParameters">Optional additional parameters</param>
     /// <returns>An <see cref="ApiResult"/> containing the requested <see cref="HttpHeaders"/></returns>
     public async Task<ApiResult<HttpHeaders>> Head(string slug = "", params List<KeyValuePair<string, string>> additionalQueryParameters)
-        => await HttpRequestBuilder.BeginCustomApiCall(_httpClient, _logger).WithEndpoint(slug, additionalQueryParameters).Head();
+        => await HttpRequestBuilder.BeginCustomApiCall(_httpClient, _logger, _group).WithEndpoint(slug, additionalQueryParameters).Head();
 }

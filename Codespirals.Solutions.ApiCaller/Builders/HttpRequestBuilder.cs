@@ -6,12 +6,18 @@ using System.Net.Http.Json;
 using System.Text;
 
 namespace Codespirals.Solutions.ApiCaller;
+/// <summary>
+/// Builds and sends HTTP requests to an API endpoint.
+/// </summary>
 public class HttpRequestBuilder
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<ApiCallerFactory> _logger;
     private readonly HttpRequestMessage Request;
-    private HttpRequestBuilder(HttpClient client, ILogger<ApiCallerFactory> logger)
+
+    private string _group = "";
+    private string _slugWithParams = "";
+    private HttpRequestBuilder(HttpClient client, ILogger<ApiCallerFactory> logger, string group = "")
     {
         _httpClient = client;
         _logger = logger;
@@ -20,15 +26,32 @@ public class HttpRequestBuilder
             Method = HttpMethod.Get,
             RequestUri = _httpClient.BaseAddress
         };
+        WithGroup(group);
     }
     /// <summary>
     /// Becin building a custom API call
     /// </summary>
     /// <param name="client"></param>
     /// <param name="logger"></param>
+    /// <param name="group"></param>
     /// <returns></returns>
-    internal static HttpRequestBuilder BeginCustomApiCall(HttpClient client, ILogger<ApiCallerFactory> logger)
-        => new(client, logger);
+    internal static HttpRequestBuilder BeginCustomApiCall(HttpClient client, ILogger<ApiCallerFactory> logger, string group)
+        => new(client, logger, group);
+
+    /// <summary>
+    /// Sets the group for the HTTP request.
+    /// </summary>
+    /// <param name="group"></param>
+    /// <returns></returns>
+    public HttpRequestBuilder WithGroup(string group)
+    {
+        if (string.IsNullOrWhiteSpace(group))
+            _group = "";
+        else
+            _group = $"{group.Trim(' ', '/', '\\', '-', '_', '?')}/";
+        return this;
+    }
+
     /// <summary>
     /// Configures the HTTP request with the specified endpoint and optional query parameters.
     /// </summary>
@@ -43,9 +66,9 @@ public class HttpRequestBuilder
     {
         slug = slug.Trim(' ', '/', '\\', '-', '_', '?');
         string parameterString = "";
-        bool addAmpersand = false;
         if (queryParameters.Count != 0)
         {
+            bool addAmpersand = false;
             StringBuilder parameterStringBuilder = new('?');
             foreach (KeyValuePair<string, string> parameter in queryParameters)
             {
@@ -56,7 +79,7 @@ public class HttpRequestBuilder
             }
             parameterString = parameterStringBuilder.ToString();
         }
-        Request.RequestUri = new Uri($"{_httpClient.BaseAddress}{slug}{parameterString}");
+        _slugWithParams = $"{slug}{parameterString}";
         return this;
     }
     /// <summary>
@@ -91,7 +114,10 @@ public class HttpRequestBuilder
     /// </summary>
     /// <remarks>This method adds the API key as a required header and, if an ID is provided, includes it as
     /// an additional header.</remarks>
-    /// <param name="credentials">The API credentials containing the key and optional ID to include in the request headers.</param>
+    /// <param name="keyName">The header name of the key</param>
+    /// <param name="key">The value of the key</param>
+    /// <param name="idName">The header name of the id (optional)</param>
+    /// <param name="id">The value of the id (optional)</param>
     /// <returns>The current <see cref="HttpRequestBuilder"/> instance, allowing for method chaining.</returns>
     public HttpRequestBuilder WithCredentials(string keyName, string key, string? idName = null, string? id = null)
     {
@@ -123,6 +149,7 @@ public class HttpRequestBuilder
     /// message.</returns>
     public async Task<ApiResult> Send(HttpMethod? method = null)
     {
+        Request.RequestUri = new Uri($"{_httpClient.BaseAddress}{_group}{_slugWithParams}");
         Request.Method = method ?? HttpMethod.Get;
         using IDisposable? log = _logger.BeginLoggingApiCall(method?.Method, Request.RequestUri?.PathAndQuery);
         using HttpResponseMessage response = await _httpClient.SendAsync(Request, HttpCompletionOption.ResponseContentRead);
@@ -146,6 +173,7 @@ public class HttpRequestBuilder
     /// the content cannot be deserialized, the result contains an error message and status code.</returns>
     public async Task<ApiResult<TData>> Send<TData>(HttpMethod? method = null)
     {
+        Request.RequestUri = new Uri($"{_httpClient.BaseAddress}{_group}{_slugWithParams}");
         Request.Method = method ?? HttpMethod.Get;
         using IDisposable? log = _logger.BeginLoggingApiCall(method?.Method, Request.RequestUri?.PathAndQuery);
         using HttpResponseMessage response = await _httpClient.SendAsync(Request, HttpCompletionOption.ResponseContentRead);
@@ -184,6 +212,7 @@ public class HttpRequestBuilder
         where TExpectedResponse : IPagination<TFilter>, IHasData<IEnumerable<TData>>
         where TResult : IApiFilteredListResult<TResult, TData, TFilter>
     {
+        Request.RequestUri = new Uri($"{_httpClient.BaseAddress}{_group}{_slugWithParams}");
         Request.Method = method ?? HttpMethod.Get;
         if (Request.Method == HttpMethod.Get)
             AddSearchParametersToQuery(filter);
@@ -221,6 +250,7 @@ public class HttpRequestBuilder
     /// failure result if the response does not include any headers.</returns>
     public async Task<ApiResult<HttpHeaderValueCollection<string>>> Options()
     {
+        Request.RequestUri = new Uri($"{_httpClient.BaseAddress}{_group}{_slugWithParams}");
         Request.Method = HttpMethod.Options;
         using IDisposable? log = _logger.BeginLoggingApiCall(Request.Method.Method, Request.RequestUri?.PathAndQuery);
         HttpResponseHeaders? headers = await GetHeaders();
@@ -241,6 +271,7 @@ public class HttpRequestBuilder
     /// failure result with an appropriate error message.</returns>
     public async Task<ApiResult<HttpHeaders>> Head()
     {
+        Request.RequestUri = new Uri($"{_httpClient.BaseAddress}{_group}{_slugWithParams}");
         Request.Method = HttpMethod.Head;
         using IDisposable? log = _logger.BeginLoggingApiCall(Request.Method.Method, Request.RequestUri?.PathAndQuery);
         HttpResponseHeaders? headers = await GetHeaders();
