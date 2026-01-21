@@ -1,4 +1,5 @@
 ﻿using Codespirals.Base.Extensions;
+using Codespirals.Base.Helpers;
 using Codespirals.Base.Filtering;
 using System.Text;
 
@@ -17,7 +18,7 @@ internal static class QueryParameterExtensions
             if (!property.CanRead)
                 continue;
             object? value = property.GetValue(filterParameters);
-            if (value is null || !value.IsBaseType())
+            if (value is null || !IdentificationHelper.IsBaseType(value))
                 continue;
             string? valueAsString = value.ToString();
             if (string.IsNullOrWhiteSpace(valueAsString))

@@ -195,10 +195,9 @@ public class HttpRequestBuilder
     /// <summary>
     /// Executes a search operation using the specified filter and HTTP method
     /// </summary>
-    /// <typeparam name="TData">The type of the data items returned by the search.</typeparam>
-    /// <typeparam name="TExpectedResponse">The type of the expected response, which must implement both <see cref="IPagination{TFilter}"/> and <see
-    /// cref="IHasData{T}"/>.</typeparam>
-    /// <typeparam name="TFilter">The type of the filter parameters used to refine the search, which must implement <see
+    /// <typeparam name="TItem">The type of the data items returned by the search.</typeparam>
+    /// <typeparam name="TData">The entire requested data, with items and everything needed for pagination</typeparam>
+    /// <typeparam name="TSearchParameters">The type of the filter parameters used to refine the search, which must implement <see
     /// cref="IFilterParameters"/> and have a parameterless constructor.</typeparam>
     /// <typeparam name="TResult">The type of the result returned by the search, which must implement <see cref="IApiFilteredListResult{TResult,
     /// TData, TFilter}"/>.</typeparam>
@@ -207,17 +206,23 @@ public class HttpRequestBuilder
     /// <returns>An instance of <typeparamref name="TResult"/> containing the search results, including the data items, filter
     /// parameters, and total result count. If the operation fails, the result will indicate the failure reason and
     /// status code.</returns>
-    public async Task<TResult> Search<TData, TExpectedResponse, TFilter, TResult>(TFilter filter, HttpMethod? method = null)
-        where TFilter : IFilterParameters, new()
-        where TExpectedResponse : IPagination<TFilter>, IHasData<IEnumerable<TData>>
-        where TResult : IApiFilteredListResult<TResult, TData, TFilter>
+    public async Task<TResult> Search<TItem, TData, TSearchParameters, TResult>(TSearchParameters? filter, HttpMethod? method = null)
+        where TData : IHasData<IEnumerable<TItem>>, IPagination<TSearchParameters>
+        where TSearchParameters : IFilterParameters, new()
+        where TResult : IApiFilteredListResult<TResult, TItem, TSearchParameters>
     {
         Request.RequestUri = new Uri($"{_httpClient.BaseAddress}{_group}{_slugWithParams}");
         Request.Method = method ?? HttpMethod.Get;
-        if (Request.Method == HttpMethod.Get)
-            AddSearchParametersToQuery(filter);
-        else if (Request.Method == HttpMethod.Post)
+        filter ??= new TSearchParameters();
+
+        if (Request.Method == HttpMethod.Post || Request.Method == HttpMethod.Put)
             Request.Content = JsonContent.Create(filter);
+        else
+        {
+            Request.Method = HttpMethod.Get;
+            AddSearchParametersToQuery(filter);
+        }
+
         using IDisposable? log = _logger.BeginLoggingApiCall(method?.Method, Request.RequestUri?.PathAndQuery);
         using HttpResponseMessage response = await _httpClient.SendAsync(Request, HttpCompletionOption.ResponseContentRead);
         if (!response.IsSuccessStatusCode)
@@ -225,19 +230,19 @@ public class HttpRequestBuilder
             _logger.LogApiFail(response.ReasonPhrase);
             return TResult.Fail(filter, "Api call failed.", Resources.ErrorCodes.ApiCallFailed, statusCode: response.StatusCode);
         }
-        TExpectedResponse? content = await response.Content.ReadFromJsonAsync<TExpectedResponse>();
-        if (content is null)
+        TData? data = await response.Content.ReadFromJsonAsync<TData>();
+        if (data is null)
         {
-            _logger.LogApiFail($"Failed to convert content to {nameof(TData)}.");
+            _logger.LogApiFail($"Failed to convert content to {nameof(TItem)}.");
             return TResult.Fail(filter, "Failed .", Resources.ErrorCodes.ConversionError, statusCode: response.StatusCode);
         }
-        if (content.Data is null)
+        if (data.Data is null)
         {
             _logger.LogApiFail($"The request returned no content.");
             return TResult.Fail(filter, "No content.", Resources.ErrorCodes.NoContent, statusCode: response.StatusCode);
         }
         _logger.LogApiSuccess();
-        return TResult.Ok(content.Data, filter, content.TotalResults, statusCode: response.StatusCode);
+        return TResult.Ok(data.Data, data.Parameters, data.TotalResults, statusCode: response.StatusCode);
     }
     /// <summary>
     /// Sends an HTTP OPTIONS request to the configured endpoint and retrieves the "Accept-Ranges" headers from the
