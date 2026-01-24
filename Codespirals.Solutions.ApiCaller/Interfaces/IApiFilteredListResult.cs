@@ -15,7 +15,7 @@ public interface IApiFilteredListResult<TSelf, TData, TFilter> : IApiResult, IFi
     where TFilter : IFilterParameters
 {
     /// <summary>
-    /// Create a successful result with a list of data filtered by the <see cref="TFilter"/>
+    /// Create a successful result with a list of data filtered by the Filter parameters
     /// </summary>
     /// <param name="formattedData">The result data</param>
     /// <param name="filter">The parameters to filter by</param>
@@ -25,7 +25,7 @@ public interface IApiFilteredListResult<TSelf, TData, TFilter> : IApiResult, IFi
     static abstract TSelf Ok(IEnumerable<TData> formattedData, TFilter filter, int totalResults, HttpStatusCode statusCode = HttpStatusCode.OK);
 
     /// <summary>
-    /// Create a failed result returning with the <see cref="TFilter">filter parameters</see> and information about the error
+    /// Create a failed result returning with the Filter parameters and information about the error
     /// </summary>
     /// <param name="filter">The filter parameters that were sent with the request</param>
     /// <param name="error">An error message</param>

@@ -4,6 +4,11 @@ using System.Net;
 
 namespace Codespirals.Solutions.ApiCaller
 {
+    /// <summary>
+    /// The result of an API operation that returns a filtered list of data, including filtering parameters
+    /// </summary>
+    /// <typeparam name="TData"></typeparam>
+    /// <typeparam name="TFilter"></typeparam>
     public record ApiSearchResult<TData, TFilter> : IApiFilteredListResult<ApiSearchResult<TData, TFilter>, TData, TFilter>
         where TFilter : ISearchParameters, new()
     {
@@ -12,11 +17,11 @@ namespace Codespirals.Solutions.ApiCaller
 
         /// <inheritdoc cref="IPagination{TParamters}.Parameters"/>
         public TFilter Parameters { get; init; } = new TFilter();
-        /// <inheritdoc cref="IApiResult{TSelf}.StatusCode"/>
+        /// <inheritdoc cref="IApiResult.StatusCode"/>
         public HttpStatusCode StatusCode { get; set; } = HttpStatusCode.Ambiguous;
         /// <inheritdoc cref="IPagination{TParamters}.TotalResults"/>
         public int TotalResults { get; init; }
-        /// <inheritdoc cref="IResultWithData{TSelf, TErrorCode, TData}.Data"/>
+        /// <inheritdoc cref="IHasData{TData}.Data"/>
         public IEnumerable<TData>? Data { get; init; }
         /// <inheritdoc cref="IResult{TErrorCode}.Error"/>
         public string Error { get; } = "";

@@ -8,12 +8,19 @@ namespace Codespirals.Solutions.ApiCaller
     public record ApiFilteredListResult<TData, TFilter> : IApiFilteredListResult<ApiFilteredListResult<TData, TFilter>, TData, TFilter>
         where TFilter : IFilterParameters, new()
     {
+        /// <inheritdoc />
         public bool Success { get; }
+        /// <inheritdoc />
         public TFilter Parameters { get; init; } = new TFilter();
+        /// <inheritdoc />
         public HttpStatusCode StatusCode { get; set; } = HttpStatusCode.Ambiguous;
+        /// <inheritdoc />
         public int TotalResults { get; init; }
+        /// <inheritdoc />
         public IEnumerable<TData>? Data { get; init; }
+        /// <inheritdoc />
         public string? ErrorCode { get; }
+        /// <inheritdoc />
         public string Error { get; } = "";
 
         private ApiFilteredListResult(IEnumerable<TData> formattedData, TFilter parameters, int totalResult, HttpStatusCode statusCode)
@@ -35,9 +42,10 @@ namespace Codespirals.Solutions.ApiCaller
         {
             Parameters = parameters;
         }
-
+        /// <inheritdoc cref="IApiResult{TSelf}.Fail(string, string?, HttpStatusCode)"/>
         public static ApiFilteredListResult<TData, TFilter> Fail(TFilter parameters, string error, string? errorCode = null, HttpStatusCode statusCode = HttpStatusCode.BadRequest)
             => new(parameters, error, errorCode, statusCode);
+        /// <inheritdoc cref="IResultWithData{TSelf, TErrorCode, TData}.Ok(TData)"/>
         public static ApiFilteredListResult<TData, TFilter> Ok(IEnumerable<TData> filteredData, TFilter parameters, int totalResults, HttpStatusCode statusCode = HttpStatusCode.OK)
             => new(filteredData, parameters, totalResults, statusCode);
 

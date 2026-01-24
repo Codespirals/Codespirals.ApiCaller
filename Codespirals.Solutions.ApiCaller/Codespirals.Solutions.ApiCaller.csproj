@@ -4,7 +4,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Title>$(AssemblyName)</Title>
-    <Version>1.0.18.26021</Version>
+    <Version>1.0.23.26024</Version>
     <Description>An easily implementable, modular and customizable way to call an API with.</Description>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/Codespirals/Codespirals.Solutions.ApiCaller</RepositoryUrl>
@@ -52,19 +52,6 @@
   </ItemGroup>
   <ItemGroup>
     <Using Include="Codespirals.Base" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Update="Resources\ErrorCodes.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>ErrorCodes.resx</DependentUpon>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Update="Resources\ErrorCodes.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>ErrorCodes.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <None Update="AutoUpdateVersionNumber.ps1">

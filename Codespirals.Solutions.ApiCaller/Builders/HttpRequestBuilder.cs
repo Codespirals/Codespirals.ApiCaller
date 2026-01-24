@@ -157,7 +157,7 @@ public class HttpRequestBuilder
         if (!response.IsSuccessStatusCode)
         {
             _logger.LogApiFail(response.ReasonPhrase);
-            return ApiResult.Fail($"Api call failed.", Resources.ErrorCodes.ApiCallFailed, statusCode: response.StatusCode);
+            return ApiResult.Fail($"Api call failed.", ApiCallerConstants.ErrorCodeApiCallFailed, statusCode: response.StatusCode);
         }
         _logger.LogApiSuccess();
         return ApiResult.Ok(statusCode: response.StatusCode);
@@ -181,13 +181,13 @@ public class HttpRequestBuilder
         if (!response.IsSuccessStatusCode)
         {
             _logger.LogApiFail(response.ReasonPhrase);
-            return ApiResult<TData>.Fail($"Api call failed.", Resources.ErrorCodes.ApiCallFailed, statusCode: response.StatusCode);
+            return ApiResult<TData>.Fail($"Api call failed.", ApiCallerConstants.ErrorCodeApiCallFailed, statusCode: response.StatusCode);
         }
         TData? content = await response.Content.ReadFromJsonAsync<TData>();
         if (content is null)
         {
             _logger.LogApiFail($"Failed to convert content to {nameof(TData)}.");
-            return ApiResult<TData>.Fail($"Failed to convert content to {nameof(TData)}.", Resources.ErrorCodes.ConversionError, statusCode: response.StatusCode);
+            return ApiResult<TData>.Fail($"Failed to convert content to {nameof(TData)}.", ApiCallerConstants.ErrorCodeConversionError, statusCode: response.StatusCode);
         }
         _logger.LogApiSuccess();
         return ApiResult<TData>.Ok(content, statusCode: response.StatusCode);
@@ -228,18 +228,18 @@ public class HttpRequestBuilder
         if (!response.IsSuccessStatusCode)
         {
             _logger.LogApiFail(response.ReasonPhrase);
-            return TResult.Fail(filter, "Api call failed.", Resources.ErrorCodes.ApiCallFailed, statusCode: response.StatusCode);
+            return TResult.Fail(filter, "Api call failed.", ApiCallerConstants.ErrorCodeApiCallFailed, statusCode: response.StatusCode);
         }
         TData? data = await response.Content.ReadFromJsonAsync<TData>();
         if (data is null)
         {
             _logger.LogApiFail($"Failed to convert content to {nameof(TItem)}.");
-            return TResult.Fail(filter, "Failed .", Resources.ErrorCodes.ConversionError, statusCode: response.StatusCode);
+            return TResult.Fail(filter, "Failed .", ApiCallerConstants.ErrorCodeConversionError, statusCode: response.StatusCode);
         }
         if (data.Data is null)
         {
             _logger.LogApiFail($"The request returned no content.");
-            return TResult.Fail(filter, "No content.", Resources.ErrorCodes.NoContent, statusCode: response.StatusCode);
+            return TResult.Fail(filter, "No content.", ApiCallerConstants.ErrorCodeNoContent, statusCode: response.StatusCode);
         }
         _logger.LogApiSuccess();
         return TResult.Ok(data.Data, data.Parameters, data.TotalResults, statusCode: response.StatusCode);
