@@ -14,5 +14,6 @@ public static class ApiCallerConstants
     public const string NewItem = "new";
     public const string EditItem = "edit";
     public const string Search = "search";
+    public const string Filter = "filter";
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 }

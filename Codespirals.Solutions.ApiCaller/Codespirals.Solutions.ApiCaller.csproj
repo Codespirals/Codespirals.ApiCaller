@@ -4,7 +4,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Title>$(AssemblyName)</Title>
-    <Version>1.0.23.26024</Version>
+    <Version>1.0.24.26025</Version>
     <Description>An easily implementable, modular and customizable way to call an API with.</Description>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/Codespirals/Codespirals.Solutions.ApiCaller</RepositoryUrl>
