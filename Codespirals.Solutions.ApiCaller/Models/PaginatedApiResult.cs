@@ -9,8 +9,8 @@ namespace Codespirals.Solutions.ApiCaller
     /// </summary>
     /// <typeparam name="TData"></typeparam>
     /// <typeparam name="TFilter"></typeparam>
-    public record ApiSearchResult<TData, TFilter> : IApiFilteredListResult<ApiSearchResult<TData, TFilter>, TData, TFilter>
-        where TFilter : ISearchParameters, new()
+    public record PaginatedApiResult<TData, TFilter> : IPaginatedApiResult<PaginatedApiResult<TData, TFilter>, TData, TFilter>
+        where TFilter : IFilterParameters, new()
     {
         /// <inheritdoc cref="IResult{TErrorCode}.Success"/>
         public bool Success { get; }
@@ -28,7 +28,7 @@ namespace Codespirals.Solutions.ApiCaller
         /// <inheritdoc cref="IResult{TErrorCode}.ErrorCode"/>
         public string? ErrorCode { get; }
 
-        private ApiSearchResult(IEnumerable<TData> formattedData, TFilter parameters, int totalResult, HttpStatusCode statusCode)
+        private PaginatedApiResult(IEnumerable<TData> formattedData, TFilter parameters, int totalResult, HttpStatusCode statusCode)
         {
             Success = true;
             StatusCode = statusCode;
@@ -36,25 +36,27 @@ namespace Codespirals.Solutions.ApiCaller
             Parameters = parameters;
             TotalResults = totalResult;
         }
-        private ApiSearchResult(string error, string? errorCode, HttpStatusCode statusCode)
+        private PaginatedApiResult(string error, string? errorCode, HttpStatusCode statusCode)
         {
             Success = false;
             StatusCode = statusCode;
             Error = error;
             ErrorCode = errorCode;
         }
-        private ApiSearchResult(TFilter parameters, string error, string? errorCode, HttpStatusCode statusCode) : this(error, errorCode, statusCode)
+        private PaginatedApiResult(TFilter parameters, string error, string? errorCode, HttpStatusCode statusCode) : this(error, errorCode, statusCode)
         {
             Parameters = parameters;
         }
         /// <inheritdoc />
-        public static ApiSearchResult<TData, TFilter> Fail(TFilter parameters, string error, string? errorCode = null, HttpStatusCode statusCode = HttpStatusCode.BadRequest)
+        public static PaginatedApiResult<TData, TFilter> Fail(TFilter parameters, string error, string? errorCode = null, HttpStatusCode statusCode = HttpStatusCode.BadRequest)
             => new(parameters, error, errorCode, statusCode);
+
         /// <inheritdoc />
-        public static ApiSearchResult<TData, TFilter> Ok(IEnumerable<TData> filteredData, TFilter parameters, int totalResults, HttpStatusCode statusCode = HttpStatusCode.OK)
+        public static PaginatedApiResult<TData, TFilter> Ok(IEnumerable<TData> filteredData, TFilter parameters, int totalResults, HttpStatusCode statusCode = HttpStatusCode.OK)
             => new(filteredData, parameters, totalResults, statusCode);
+
         /// <inheritdoc cref="IResult{TSelf, TErrorCode}.Short(IResult{TErrorCode})"/>
-        public static ApiSearchResult<TData, TFilter> Short(IResult<string> result) 
+        public static PaginatedApiResult<TData, TFilter> Short(IResult<string> result) 
             => new(result.Error, result.ErrorCode, HttpStatusCode.BadRequest);
     }
 }

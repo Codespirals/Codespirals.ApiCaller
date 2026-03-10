@@ -10,8 +10,8 @@ namespace Codespirals.Solutions.ApiCaller;
 /// <typeparam name="TSelf">The concrete type implementing this interface.</typeparam>
 /// <typeparam name="TData">The type of data items in the result list.</typeparam>
 /// <typeparam name="TFilter">The type of filter parameters used to filter the data.</typeparam>
-public interface IApiFilteredListResult<TSelf, TData, TFilter> : IApiResult, IFilteredListResult<string, TData, TFilter>
-    where TSelf : IApiFilteredListResult<TSelf, TData, TFilter>
+public interface IPaginatedApiResult<TSelf, TData, TFilter> : IApiResult, IPaginatedResult<string, TData, TFilter>
+    where TSelf : IPaginatedApiResult<TSelf, TData, TFilter>
     where TFilter : IFilterParameters
 {
     /// <summary>

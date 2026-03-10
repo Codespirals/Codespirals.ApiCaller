@@ -199,7 +199,7 @@ public class HttpRequestBuilder
     /// <typeparam name="TData">The entire requested data, with items and everything needed for pagination</typeparam>
     /// <typeparam name="TSearchParameters">The type of the filter parameters used to refine the search, which must implement <see
     /// cref="IFilterParameters"/> and have a parameterless constructor.</typeparam>
-    /// <typeparam name="TResult">The type of the result returned by the search, which must implement <see cref="IApiFilteredListResult{TResult,
+    /// <typeparam name="TResult">The type of the result returned by the search, which must implement <see cref="IPaginatedApiResult{TResult,
     /// TData, TFilter}"/>.</typeparam>
     /// <param name="filter">The filter parameters used to refine the search. This determines the criteria for the search operation.</param>
     /// <param name="method">The HTTP method to use for the request. Defaults to <see cref="HttpMethod.Get"/> if not specified.</param>
@@ -209,7 +209,7 @@ public class HttpRequestBuilder
     public async Task<TResult> Search<TItem, TData, TSearchParameters, TResult>(TSearchParameters? filter, HttpMethod? method = null)
         where TData : IHasData<IEnumerable<TItem>>, IPagination<TSearchParameters>
         where TSearchParameters : IFilterParameters, new()
-        where TResult : IApiFilteredListResult<TResult, TItem, TSearchParameters>
+        where TResult : IPaginatedApiResult<TResult, TItem, TSearchParameters>
     {
         Request.RequestUri = new Uri($"{_httpClient.BaseAddress}{_group}{_slugWithParams}");
         Request.Method = method ?? HttpMethod.Get;
