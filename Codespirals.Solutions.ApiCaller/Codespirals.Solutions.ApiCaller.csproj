@@ -4,7 +4,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Title>$(AssemblyName)</Title>
-    <Version>1.0.29.26069</Version>
+    <Version>1.0.30.26095</Version>
     <Description>An easily implementable, modular and customizable way to call an API with.</Description>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/Codespirals/Codespirals.Solutions.ApiCaller</RepositoryUrl>
@@ -35,7 +35,7 @@
     <None Remove="Resources\Images\logo.png" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Codespirals.Base.Shared" Version="1.0.233.26061" />
+    <PackageReference Include="Codespirals.Base.Shared" Version="1.0.239.26094" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.11" />
   </ItemGroup>
   <ItemGroup>
