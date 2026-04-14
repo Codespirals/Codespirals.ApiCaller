@@ -15,9 +15,9 @@ public static class QueryParameterExtensions
     /// </summary>
     /// <typeparam name="TFilterParameters"></typeparam>
     /// <param name="filterParameters"></param>
-    /// <param name="startWithAmp"></param>
+    /// <param name="startWithQuestionMark"></param>
     /// <returns></returns>
-    public static string ToQueryString<TFilterParameters>(this TFilterParameters filterParameters, bool startWithAmp = false)
+    public static string ToQueryString<TFilterParameters>(this TFilterParameters filterParameters, bool startWithQuestionMark = true)
         where TFilterParameters : IFilterParameters
     {
         System.Reflection.PropertyInfo[] properties = filterParameters.GetType().GetProperties();
@@ -34,7 +34,7 @@ public static class QueryParameterExtensions
             if (string.IsNullOrWhiteSpace(valueAsString))
                 continue;
 
-            if (!startWithAmp && sb.Length is 0)
+            if (startWithQuestionMark && sb.Length is 0)
                 sb.Append('?');
             else
                 sb.Append('&');
