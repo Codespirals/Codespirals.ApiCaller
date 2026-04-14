@@ -4,17 +4,27 @@ using Codespirals.Base.Filtering;
 using System.Text;
 
 namespace Codespirals.Solutions.ApiCaller;
-internal static class QueryParameterExtensions
+
+/// <summary>
+/// 
+/// </summary>
+public static class QueryParameterExtensions
 {
-    internal static string ToQueryString<TFilterParameters>(this TFilterParameters filterParameters, bool startWithAmp = true)
+    /// <summary>
+    /// Turns an object of <see cref="IFilterParameters"/> into a string
+    /// </summary>
+    /// <typeparam name="TFilterParameters"></typeparam>
+    /// <param name="filterParameters"></param>
+    /// <param name="startWithAmp"></param>
+    /// <returns></returns>
+    public static string ToQueryString<TFilterParameters>(this TFilterParameters filterParameters, bool startWithAmp = false)
         where TFilterParameters : IFilterParameters
     {
         System.Reflection.PropertyInfo[] properties = filterParameters.GetType().GetProperties();
         StringBuilder sb = new();
+
         foreach (System.Reflection.PropertyInfo property in properties)
         {
-            if (startWithAmp)
-                sb.Append('&');
             if (!property.CanRead)
                 continue;
             object? value = property.GetValue(filterParameters);
@@ -23,10 +33,14 @@ internal static class QueryParameterExtensions
             string? valueAsString = value.ToString();
             if (string.IsNullOrWhiteSpace(valueAsString))
                 continue;
-            // make name camelcase (API standard) as this is often pascal case
+
+            if (!startWithAmp && sb.Length is 0)
+                sb.Append('?');
+            else
+                sb.Append('&');
+            // make name pascalCase (API standard) as properties in C# are CamelCase standard
             string name = $"{char.ToLowerInvariant(property.Name[0])}{property.Name[1..]}";
             sb.Append($"{name}={valueAsString}");
-            startWithAmp = true;
         }
         return sb.ToString();
     }

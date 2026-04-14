@@ -7,7 +7,7 @@ builder.Services.AddRazorPages();
 
 builder.Logging.AddDebug().SetMinimumLevel(LogLevel.Debug);
 
-builder.Services.AddTransient<IApiCallerFactory, ApiCallerFactory>();
+builder.Services.AddApiCallerFactory();
 
 /// add your newly created service that uses the <see cref="ApiCallerService"/>
 builder.Services.AddScoped<IApiExampleService, ApiExampleService>();

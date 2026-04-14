@@ -7,11 +7,11 @@
 
     public class ApiExampleService(IApiCallerFactory apiCallerFactory) : IApiExampleService
     {
-        private readonly ApiCaller _apiService = apiCallerFactory.InitializeApiCaller("https://catfact.ninja", "api-caller-test");
+        private readonly ApiCaller _apiService = apiCallerFactory.InitializeApiCaller("https://catfact.ninja", userAgent:"api-caller-test");
 
         public async Task<CatFact?> GetCatFact()
         {
-            var fact = await _apiService.Post<CatFact>("fact");
+            var fact = await _apiService.Get<CatFact>("/fact");
             if (fact.Success)
             {
                 return fact.Data;

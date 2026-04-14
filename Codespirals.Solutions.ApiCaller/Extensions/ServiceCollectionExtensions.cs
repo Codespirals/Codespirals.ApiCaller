@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Codespirals.Solutions.ApiCaller;
 /// <summary>
@@ -11,7 +10,6 @@ public static class ServiceCollectionExtensions
     /// Add an api caller service 
     /// </summary>
     /// <param name="services"></param>
-    /// <param name="lifetime"></param>
-    public static void AddApiCallerService(this IServiceCollection services, ServiceLifetime lifetime = ServiceLifetime.Scoped)
-        => services.TryAdd(new ServiceDescriptor(typeof(IApiCallerFactory), typeof(ApiCallerFactory), lifetime));
+    public static void AddApiCallerFactory(this IServiceCollection services)
+        => services.AddTransient<IApiCallerFactory, ApiCallerFactory>();
 }
