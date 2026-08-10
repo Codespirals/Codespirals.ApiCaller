@@ -8,7 +8,7 @@ To accomplish this, it employs dependency injection to add the `ApiCallerFactory
 
 **In Program.cs (or similar):**
 
-    services.AddApiCallerService()
+    services.AddApiCallerFactory()
 
 ## Creating ApiCallers
 
