@@ -2,28 +2,33 @@
 
 This is a small solution to easily call external web APIs.
 
+## ApiCallerFactory
+
 To accomplish this, it employs dependency injection to add the `ApiCallerFactory` to our service collection while building our app:
 
-<sub>Program.cs (or similar):</sub>
+**In Program.cs (or similar):**
 
-    services.AddApiCallerService(ServiceLifetime.Scoped)
+    services.AddApiCallerService()
 
-After this service is added, we can inject the api caller factory it into our other classes, where we use it to instances of the `ApiCaller`
+## Creating ApiCallers
 
-<sub>Another class:</sub>
+After this service is added, we can inject it into our other classes, where we use it to create instances of the `ApiCaller` class.
+
+**How to use it in your class:**
 
     public class ApiExampleService(IApiCallerFactory apiCallerFactory)
     {
         var apiCaller1 = apiCallerFactory.InitializeApiCaller("https://my-api.com");
+        var apiCaller2 = apiCallerFactory.InitializeApiCaller("https://my-other-api.com");
     }
 
-Doing it this way allows us to easily create multiple api callers for different API urls.
+As you can see, doing it this way allows us to easily create multiple api callers for different API urls.
 
 Now that we have an `ApiCaller` we can make use of it.
 
 Because calls to an API are largely similar, we have built in the most common methods to be called into the Caller.
 
-<sub>Somewhere within the other class:</sub>
+**Somewhere within the other class:**
 
     var result = await apiCaller1.Get("xxx");
     var result = await apiCaller1.Get<T>("xxx");
@@ -34,7 +39,7 @@ The api caller takes the given info, executes the api call and returns the resul
 
 This result contains the following:
 
-<sub>An ApiResult:</sub>
+**An ApiResult:**
 
     bool Success
     HttpStatusCode StatusCode
@@ -50,20 +55,26 @@ I decided to implement the Result Pattern here to get a more unified response. I
 
 ### Search & Pagination
 
-There are two variations on `ApiResult` to handle pagination, namely `ApiFilteredListResult` and `ApiSearchResult` - the only difference between them is that search has an additional property for query.
+The advantage of pagination, should you be able to use it, is that your backend can do all the work of formatting and caching the data and only sending the requested page back, instead of all possible search results.
 
-They implement `IPagination`, which contains all info needed to paginate a result.
+My solution for search and pagination is a variation on the above `ApiResult` - the predictably named `PaginatedApiResult`.
+
+It implements my base interface `IPagination`, which contains all info needed to paginate a result.
 
 `ApiCaller` has a method prepared to make using these relatively easy:
 
-    var result = await apiCaller1.GetPaginated<TData, TResponse, TFilterParameters>(parameters, "XXX";
-    var result = await apiCaller1.Search<TData, TResponse, TFilterParameters>(parameters, "XXX";
+    var result = await apiCaller1.GetPaginated<TData, TResponse, TFilterParameters>("xxx", parameters);
+    var result = await apiCaller1.Search<TData, TResponse, TFilterParameters>("xxx", parameters);
+
+The difference between the two being that "search" expects an additonal query string in the parameters.
 
 The only minorly tricky part is that to make these methods work, the return value from the API calls has to implement `IPagination` as well - which is represented and enforced by `TResponse` in these methods.
 
 How the methods work in the backend is that they turn the search parameter object into query parameters and send a get request.
 
-However, as soon as [Http Query](https://httpwg.org/http-extensions/draft-ietf-httpbis-safe-method-w-body.html) is in more wide use, I'll probably rework these methods.
+**Alternatively**
+
+Since June 2026 a new HTTP method called "Query" exists - I have implemented, but I'm keeping the other methods for now as "query" isn't implemented everywhere yet.
 
 ### Build-a-call
 
@@ -75,7 +86,7 @@ This returns a `HttpRequestBuilder`, from which we can chain further customizati
 
 When we're done we can then fire off the api call with `.Send()`
 
-<sub>Example of builder chaining:</sub>
+**Example of builder chaining:**
 
     apiCaller1.BeginCustomApiCall().WithEndpoint("xxx").WithBody<T>(foo).Send<TReturn>(HttpMethod.Post)
 

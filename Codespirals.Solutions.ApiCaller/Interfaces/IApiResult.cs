@@ -15,11 +15,12 @@ public interface IApiResult : IResult<string>
 /// <summary>
 /// A wrapper to get a result without data from an api call
 /// </summary>
-/// <typeparam name="TSelf">The result type itself</typeparam>
+/// <typeparam name="TSelf">The <see cref="IApiResult"/> type itself</typeparam>
 public interface IApiResult<TSelf> : IApiResult, IResult<TSelf, string>
     where TSelf : IApiResult<TSelf>
 {
-    /// <inheritdoc cref="IResult{TSelf, string}.Fail(string, string?)" />
+    /// <param name="error">A short error description</param>
+    /// <param name="errorCode">An optional error code</param>
     /// <param name="statusCode">An <see cref="HttpStatusCode"/></param>
     static abstract TSelf Fail(string error, string? errorCode = default, HttpStatusCode statusCode = HttpStatusCode.BadRequest);
 }
@@ -31,7 +32,8 @@ public interface IApiResult<TSelf> : IApiResult, IResult<TSelf, string>
 public interface IApiResult<TSelf, TData> : IApiResult<TSelf>, IResultWithData<TSelf, string, TData>
     where TSelf : IApiResult<TSelf, TData>
 {
-    /// <inheritdoc cref="IResultWithData{TSelf, TErrorCode, TData}.Ok(TData)" />
+
+    /// <param name="data">The requested data</param>
     /// <param name="statusCode">An <see cref="HttpStatusCode"/></param>
     static abstract TSelf Ok(TData data, HttpStatusCode statusCode);
 }

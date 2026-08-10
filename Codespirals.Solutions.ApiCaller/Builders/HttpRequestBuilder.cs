@@ -246,6 +246,51 @@ public class HttpRequestBuilder
         return TResult.Ok(data.Data, data.Parameters, data.TotalResults, statusCode: response.StatusCode);
     }
     /// <summary>
+    /// Executes a search operation using the specified filter and HTTP method
+    /// </summary>
+    /// <typeparam name="TItem">The type of the data items returned by the search.</typeparam>
+    /// <typeparam name="TData">The entire requested data, with items and everything needed for pagination</typeparam>
+    /// <typeparam name="TSearchParameters">The type of the filter parameters used to refine the search, which must implement <see
+    /// cref="IFilterParameters"/> and have a parameterless constructor.</typeparam>
+    /// <typeparam name="TResult">The type of the result returned by the search, which must implement <see cref="IPaginatedApiResult{TResult,
+    /// TData, TFilter}"/>.</typeparam>
+    /// <param name="filter">The filter parameters used to refine the search. This determines the criteria for the search operation.</param>
+    /// <returns>An instance of <typeparamref name="TResult"/> containing the search results, including the data items, filter
+    /// parameters, and total result count. If the operation fails, the result will indicate the failure reason and
+    /// status code.</returns>
+    public async Task<TResult> Query<TItem, TData, TSearchParameters, TResult>(TSearchParameters? filter)
+        where TData : IHasData<IEnumerable<TItem>>, IPagination<TSearchParameters>
+        where TSearchParameters : IFilterParameters, new()
+        where TResult : IPaginatedApiResult<TResult, TItem, TSearchParameters>
+    {
+        filter ??= new TSearchParameters();
+
+        Request.RequestUri = new Uri($"{_httpClient.BaseAddress}{_group}{_slugWithParams}");
+        Request.Method = HttpMethod.Query;
+        Request.Content = JsonContent.Create(filter);
+
+        using IDisposable? log = _logger.BeginLoggingApiCall(HttpMethod.Query.Method, Request.RequestUri?.PathAndQuery);
+        using HttpResponseMessage response = await _httpClient.SendAsync(Request, HttpCompletionOption.ResponseContentRead);
+        if (!response.IsSuccessStatusCode)
+        {
+            _logger.LogApiFail(response.ReasonPhrase);
+            return TResult.Fail(filter, "Api call failed.", ApiCallerConstants.ErrorCodeApiCallFailed, statusCode: response.StatusCode);
+        }
+        TData? data = await response.Content.ReadFromJsonAsync<TData>();
+        if (data is null)
+        {
+            _logger.LogApiFail($"Failed to convert content to {nameof(TItem)}.");
+            return TResult.Fail(filter, "Failed .", ApiCallerConstants.ErrorCodeConversionError, statusCode: response.StatusCode);
+        }
+        if (data.Data is null)
+        {
+            _logger.LogApiFail($"The request returned no content.");
+            return TResult.Fail(filter, "No content.", ApiCallerConstants.ErrorCodeNoContent, statusCode: response.StatusCode);
+        }
+        _logger.LogApiSuccess();
+        return TResult.Ok(data.Data, data.Parameters, data.TotalResults, statusCode: response.StatusCode);
+    }
+    /// <summary>
     /// Sends an HTTP OPTIONS request to the configured endpoint and retrieves the "Accept-Ranges" headers from the
     /// response.
     /// </summary>

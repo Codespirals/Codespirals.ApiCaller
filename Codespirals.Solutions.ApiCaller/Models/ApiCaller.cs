@@ -212,6 +212,22 @@ public class ApiCaller
         => await HttpRequestBuilder.BeginCustomApiCall(_httpClient, _logger, _group).WithEndpoint(slug, additionalQueryParameters).Search<TItem, TData, TSearchParameters, PaginatedApiResult<TItem, TSearchParameters>>(parameters, httpMethod);
 
     /// <summary>
+    /// Make an API call for a paginated list further filtered through a <see cref="ISearchParameters.Query" /> parameter
+    /// </summary>
+    /// <typeparam name="TItem">The type of the requested data</typeparam>
+    /// <typeparam name="TData">The data expected from the API</typeparam>
+    /// <typeparam name="TSearchParameters"></typeparam>
+    /// <param name="parameters">The search parameters</param>
+    /// <param name="slug">The slug to prepend to the base url</param>
+    /// <param name="additionalQueryParameters">Optional additional parameters</param>
+    /// <returns>An <see cref="ApiResult"/> containing the requested data</returns>
+    public async Task<PaginatedApiResult<TItem, TSearchParameters>> Query<TItem, TData, TSearchParameters>(string slug = "", TSearchParameters? parameters = default, params List<KeyValuePair<string, string>> additionalQueryParameters)
+        where TData : IHasData<IEnumerable<TItem>>, IPagination<TSearchParameters>
+        where TSearchParameters : ISearchParameters, new()
+        => await HttpRequestBuilder.BeginCustomApiCall(_httpClient, _logger, _group).WithEndpoint(slug, additionalQueryParameters).Query<TItem, TData, TSearchParameters, PaginatedApiResult<TItem, TSearchParameters>>(parameters);
+
+
+    /// <summary>
     /// Make a <see cref="HttpMethod.Delete"/> call
     /// </summary>
     /// <param name="slug">The slug to prepend to the base url</param>
