@@ -7,7 +7,7 @@
 
     public class ApiExampleService(IApiCallerFactory apiCallerFactory) : IApiExampleService
     {
-        private readonly ApiCaller _apiService = apiCallerFactory.InitializeApiCaller("https://catfact.ninja", userAgent:"api-caller-test");
+        private readonly ApiCaller _apiService = apiCallerFactory.CreateApiCaller("https://catfact.ninja", userAgent:"api-caller-test");
 
         public async Task<CatFact?> GetCatFact()
         {

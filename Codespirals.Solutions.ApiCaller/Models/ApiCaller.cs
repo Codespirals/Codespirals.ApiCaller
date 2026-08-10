@@ -9,11 +9,11 @@ namespace Codespirals.Solutions.ApiCaller;
 /// </summary>
 public class ApiCaller
 {
-    private readonly ILogger<ApiCallerFactory> _logger;
+    private readonly ILogger<ApiCaller> _logger;
     private readonly HttpClient _httpClient;
     private string _group = "";
 
-    private ApiCaller(ILogger<ApiCallerFactory> logger, string baseUrl, string group = "", string? userAgent = null)
+    private ApiCaller(ILogger<ApiCaller> logger, string baseUrl, string group = "", string? userAgent = null)
     {
         _logger = logger;
         _httpClient = new HttpClient()
@@ -23,7 +23,7 @@ public class ApiCaller
         SetGroup(group);
         SetDefaultUserAgent(userAgent);
     }
-    internal static ApiCaller InitiateApiCaller(ILogger<ApiCallerFactory> logger, string baseUrl, string group = "", string? userAgent = null)
+    internal static ApiCaller InitiateApiCaller(ILogger<ApiCaller> logger, string baseUrl, string group = "", string? userAgent = null)
         => new(logger, baseUrl, group, userAgent);
 
     /// <summary>

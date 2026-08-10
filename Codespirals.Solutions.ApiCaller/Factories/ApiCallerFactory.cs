@@ -8,11 +8,11 @@ namespace Codespirals.Solutions.ApiCaller;
 /// </summary>
 /// <param name="logger">The logger</param>
 [InjectableService(typeof(IApiCallerFactory), defaultLifetime: ServiceLifetime.Scoped)]
-public class ApiCallerFactory(ILogger<ApiCallerFactory> logger) : IApiCallerFactory
+public class ApiCallerFactory(ILogger<ApiCaller> logger) : IApiCallerFactory
 {
-    private readonly ILogger<ApiCallerFactory> _logger = logger;
+    private readonly ILogger<ApiCaller> _logger = logger;
 
     /// <inheritdoc />
-    public ApiCaller InitializeApiCaller(string baseUrl, string group = "", string? userAgent = null)
+    public ApiCaller CreateApiCaller(string baseUrl, string group = "", string? userAgent = null)
         => ApiCaller.InitiateApiCaller(_logger, baseUrl, group, userAgent);
 }

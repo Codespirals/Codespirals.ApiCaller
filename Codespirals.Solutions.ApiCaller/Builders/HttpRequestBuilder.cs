@@ -1,4 +1,5 @@
-﻿using Codespirals.Base.Filtering;
+﻿using Codespirals.Base.Extensions;
+using Codespirals.Base.Filtering;
 using Codespirals.Base.Results;
 using Microsoft.Extensions.Logging;
 using System.Net.Http.Headers;
@@ -12,12 +13,12 @@ namespace Codespirals.Solutions.ApiCaller;
 public class HttpRequestBuilder
 {
     private readonly HttpClient _httpClient;
-    private readonly ILogger<ApiCallerFactory> _logger;
+    private readonly ILogger<ApiCaller> _logger;
     private readonly HttpRequestMessage Request;
 
     private string _group = "";
     private string _slugWithParams = "";
-    private HttpRequestBuilder(HttpClient client, ILogger<ApiCallerFactory> logger, string group = "")
+    private HttpRequestBuilder(HttpClient client, ILogger<ApiCaller> logger, string group = "")
     {
         _httpClient = client;
         _logger = logger;
@@ -35,7 +36,7 @@ public class HttpRequestBuilder
     /// <param name="logger"></param>
     /// <param name="group"></param>
     /// <returns></returns>
-    internal static HttpRequestBuilder BeginCustomApiCall(HttpClient client, ILogger<ApiCallerFactory> logger, string group)
+    internal static HttpRequestBuilder BeginCustomApiCall(HttpClient client, ILogger<ApiCaller> logger, string group)
         => new(client, logger, group);
 
     /// <summary>
@@ -48,7 +49,7 @@ public class HttpRequestBuilder
         if (string.IsNullOrWhiteSpace(group))
             _group = "";
         else
-            _group = $"{group.Trim(' ', '/', '\\', '-', '_', '?')}/";
+            _group = $"{group.MakeUrlSafe('-').Trim('-')}/";
         return this;
     }
 
@@ -64,7 +65,7 @@ public class HttpRequestBuilder
     /// <returns>The current <see cref="HttpRequestBuilder"/> instance, allowing for method chaining.</returns>
     public HttpRequestBuilder WithEndpoint(string slug, params List<KeyValuePair<string, string>> queryParameters)
     {
-        slug = slug.Trim(' ', '/', '\\', '-', '_', '?');
+        slug = slug.MakeUrlSafe('-').Trim('-');
         string parameterString = "";
         if (queryParameters.Count != 0)
         {
