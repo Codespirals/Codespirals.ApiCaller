@@ -9,11 +9,11 @@ internal static class ApiLoggingExtensions
     {
         (string, string)[] tags = [];
         if (httpMethod is not null)
-            tags.Append(("Method", httpMethod));
+            tags = [.. tags, ("Method", httpMethod)];
         if (endpoint is not null)
-            tags.Append(("Endpoint", endpoint));
+            tags = [.. tags, ("Endpoint", endpoint)];
         return logger.BeginLog(nameof(ApiCaller), message:"Starting API Call", tags);
-    }
+    } 
     internal static void LogApiRequest(this ILogger<ApiCaller> logger, HttpRequestMessage request)
         => logger.LogStep(State.InProgress, $"Sending {request.Method} request call to {request.RequestUri}\nWith data: {request.Content?.ReadAsStream().ToString() ?? "No data"}");
     internal static async Task LogApiResponse(this ILogger<ApiCaller> logger, HttpResponseMessage response)

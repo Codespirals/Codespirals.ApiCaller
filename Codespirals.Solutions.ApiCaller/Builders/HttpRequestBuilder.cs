@@ -17,7 +17,7 @@ public class HttpRequestBuilder
     private readonly HttpRequestMessage Request;
 
     private string _group = "";
-    private string _slugWithParams = "";
+    private string _pathSlugAndParams = "";
     private HttpRequestBuilder(HttpClient client, ILogger<ApiCaller> logger, string group = "")
     {
         _httpClient = client;
@@ -49,7 +49,7 @@ public class HttpRequestBuilder
         if (string.IsNullOrWhiteSpace(group))
             _group = "";
         else
-            _group = $"{group.MakeUrlSafe('-').Trim('-')}/";
+            _group = $"{group.MakeUrlSafe('-', true).Trim(['-', '/'])}/";
         return this;
     }
 
@@ -58,14 +58,19 @@ public class HttpRequestBuilder
     /// </summary>
     /// <remarks>The method constructs the full request URI by appending the trimmed <paramref name="slug"/>
     /// and the formatted query parameters to the base address of the HTTP client.</remarks>
-    /// <param name="slug">The endpoint slug to append to the base address. Leading and trailing whitespace, slashes, dashes, underscores,
+    /// <param name="path">The path after the group</param>
+    /// <param name="slug">The endpoint slug to append to the path. Leading and trailing whitespace, slashes, dashes, underscores,
     /// and question marks will be trimmed.</param>
     /// <param name="queryParameters">A collection of key-value pairs representing query parameters to include in the request. If empty, no query
     /// parameters will be added.</param>
     /// <returns>The current <see cref="HttpRequestBuilder"/> instance, allowing for method chaining.</returns>
-    public HttpRequestBuilder WithEndpoint(string slug, params List<KeyValuePair<string, string>> queryParameters)
+    public HttpRequestBuilder WithEndpoint(string path, string slug, params List<KeyValuePair<string, string>> queryParameters)
     {
-        slug = slug.MakeUrlSafe('-').Trim('-');
+        path = path.MakeUrlSafe('-', true);
+        if (!string.IsNullOrWhiteSpace(path))
+            path = $"{path.Trim('/')}/";
+        slug = Uri.EscapeDataString(slug);
+
         string parameterString = "";
         if (queryParameters.Count != 0)
         {
@@ -75,14 +80,15 @@ public class HttpRequestBuilder
             {
                 if (addAmpersand)
                     parameterStringBuilder.Append('&');
-                parameterStringBuilder = parameterStringBuilder.Append(parameter.Key).Append('=').Append(parameter.Value);
+                parameterStringBuilder = parameterStringBuilder.Append(Uri.EscapeDataString(parameter.Key)).Append('=').Append(Uri.EscapeDataString(parameter.Value));
                 addAmpersand = true;
             }
             parameterString = parameterStringBuilder.ToString();
         }
-        _slugWithParams = $"{slug}{parameterString}";
+        _pathSlugAndParams = $"{path}{slug}{parameterString}";
         return this;
     }
+
     /// <summary>
     /// Sets the HTTP request body to the specified content.
     /// </summary>
@@ -150,7 +156,7 @@ public class HttpRequestBuilder
     /// message.</returns>
     public async Task<ApiResult> Send(HttpMethod? method = null)
     {
-        Request.RequestUri = new Uri($"{_httpClient.BaseAddress}{_group}{_slugWithParams}");
+        Request.RequestUri = new Uri($"{_httpClient.BaseAddress}{_group}{_pathSlugAndParams}");
         Request.Method = method ?? HttpMethod.Get;
         using IDisposable? log = _logger.BeginLoggingApiCall(method?.Method, Request.RequestUri?.PathAndQuery);
         using HttpResponseMessage response = await _httpClient.SendAsync(Request, HttpCompletionOption.ResponseContentRead);
@@ -174,7 +180,7 @@ public class HttpRequestBuilder
     /// the content cannot be deserialized, the result contains an error message and status code.</returns>
     public async Task<ApiResult<TData>> Send<TData>(HttpMethod? method = null)
     {
-        Request.RequestUri = new Uri($"{_httpClient.BaseAddress}{_group}{_slugWithParams}");
+        Request.RequestUri = new Uri($"{_httpClient.BaseAddress}{_group}{_pathSlugAndParams}");
         Request.Method = method ?? HttpMethod.Get;
         using IDisposable? log = _logger.BeginLoggingApiCall(method?.Method, Request.RequestUri?.PathAndQuery);
         using HttpResponseMessage response = await _httpClient.SendAsync(Request, HttpCompletionOption.ResponseContentRead);
@@ -212,7 +218,7 @@ public class HttpRequestBuilder
         where TSearchParameters : IFilterParameters, new()
         where TResult : IPaginatedApiResult<TResult, TItem, TSearchParameters>
     {
-        Request.RequestUri = new Uri($"{_httpClient.BaseAddress}{_group}{_slugWithParams}");
+        Request.RequestUri = new Uri($"{_httpClient.BaseAddress}{_group}{_pathSlugAndParams}");
         Request.Method = method ?? HttpMethod.Get;
         filter ??= new TSearchParameters();
 
@@ -245,6 +251,7 @@ public class HttpRequestBuilder
         _logger.LogApiSuccess();
         return TResult.Ok(data.Data, data.Parameters, data.TotalResults, statusCode: response.StatusCode);
     }
+
     /// <summary>
     /// Executes a search operation using the specified filter and HTTP method
     /// </summary>
@@ -258,14 +265,14 @@ public class HttpRequestBuilder
     /// <returns>An instance of <typeparamref name="TResult"/> containing the search results, including the data items, filter
     /// parameters, and total result count. If the operation fails, the result will indicate the failure reason and
     /// status code.</returns>
-    public async Task<TResult> Query<TItem, TData, TSearchParameters, TResult>(TSearchParameters? filter)
+    public async Task<TResult> QueryPaginated<TItem, TData, TSearchParameters, TResult>(TSearchParameters? filter)
         where TData : IHasData<IEnumerable<TItem>>, IPagination<TSearchParameters>
         where TSearchParameters : IFilterParameters, new()
         where TResult : IPaginatedApiResult<TResult, TItem, TSearchParameters>
     {
         filter ??= new TSearchParameters();
 
-        Request.RequestUri = new Uri($"{_httpClient.BaseAddress}{_group}{_slugWithParams}");
+        Request.RequestUri = new Uri($"{_httpClient.BaseAddress}{_group}{_pathSlugAndParams}");
         Request.Method = HttpMethod.Query;
         Request.Content = JsonContent.Create(filter);
 
@@ -290,6 +297,7 @@ public class HttpRequestBuilder
         _logger.LogApiSuccess();
         return TResult.Ok(data.Data, data.Parameters, data.TotalResults, statusCode: response.StatusCode);
     }
+
     /// <summary>
     /// Sends an HTTP OPTIONS request to the configured endpoint and retrieves the "Accept-Ranges" headers from the
     /// response.
@@ -301,7 +309,7 @@ public class HttpRequestBuilder
     /// failure result if the response does not include any headers.</returns>
     public async Task<ApiResult<HttpHeaderValueCollection<string>>> Options()
     {
-        Request.RequestUri = new Uri($"{_httpClient.BaseAddress}{_group}{_slugWithParams}");
+        Request.RequestUri = new Uri($"{_httpClient.BaseAddress}{_group}{_pathSlugAndParams}");
         Request.Method = HttpMethod.Options;
         using IDisposable? log = _logger.BeginLoggingApiCall(Request.Method.Method, Request.RequestUri?.PathAndQuery);
         HttpResponseHeaders? headers = await GetHeaders();
@@ -322,7 +330,7 @@ public class HttpRequestBuilder
     /// failure result with an appropriate error message.</returns>
     public async Task<ApiResult<HttpHeaders>> Head()
     {
-        Request.RequestUri = new Uri($"{_httpClient.BaseAddress}{_group}{_slugWithParams}");
+        Request.RequestUri = new Uri($"{_httpClient.BaseAddress}{_group}{_pathSlugAndParams}");
         Request.Method = HttpMethod.Head;
         using IDisposable? log = _logger.BeginLoggingApiCall(Request.Method.Method, Request.RequestUri?.PathAndQuery);
         HttpResponseHeaders? headers = await GetHeaders();
