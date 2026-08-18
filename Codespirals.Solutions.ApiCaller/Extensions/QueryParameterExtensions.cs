@@ -21,7 +21,7 @@ public static class QueryParameterExtensions
         where TFilterParameters : IFilterParameters
     {
         System.Reflection.PropertyInfo[] properties = filterParameters.GetType().GetProperties();
-        StringBuilder sb = new();
+        var parameters = new List<KeyValuePair<string, string>>();
 
         foreach (System.Reflection.PropertyInfo property in properties)
         {
@@ -34,14 +34,35 @@ public static class QueryParameterExtensions
             if (string.IsNullOrWhiteSpace(valueAsString))
                 continue;
 
-            if (startWithQuestionMark && sb.Length is 0)
-                sb.Append('?');
-            else
-                sb.Append('&');
             // make name pascalCase (API standard) as properties in C# are CamelCase standard
             string name = $"{char.ToLowerInvariant(property.Name[0])}{property.Name[1..]}";
-            sb.Append($"{name}={valueAsString}");
+            parameters.Add(new(name, valueAsString));
         }
-        return sb.ToString();
+        return parameters.ToQueryString(startWithQuestionMark);
+    }
+    /// <summary>
+    /// Turns a list of <see cref="KeyValuePair"/>s of <see cref="string"/>s into a parameter string
+    /// </summary>
+    /// <param name="queryparams"></param>
+    /// <param name="startWithQuestionMark"></param>
+    /// <returns></returns>
+    public static string ToQueryString(this IEnumerable<KeyValuePair<string, string>> queryparams, bool startWithQuestionMark = true)
+    {
+        if (!queryparams.Any())
+            return string.Empty;
+        StringBuilder parameterStringBuilder = new();
+        if (startWithQuestionMark)
+            parameterStringBuilder.Append('?');
+        bool addAmpersand = false;
+
+        foreach (KeyValuePair<string, string> parameter in queryparams)
+        {
+            if (addAmpersand)
+                parameterStringBuilder.Append('&');
+            parameterStringBuilder.Append(Uri.EscapeDataString(parameter.Key))
+                .Append('=').Append(Uri.EscapeDataString(parameter.Value));
+            addAmpersand = true;
+        }
+        return parameterStringBuilder.ToString();
     }
 }

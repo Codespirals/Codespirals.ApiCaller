@@ -64,27 +64,14 @@ public class HttpRequestBuilder
     /// <param name="queryParameters">A collection of key-value pairs representing query parameters to include in the request. If empty, no query
     /// parameters will be added.</param>
     /// <returns>The current <see cref="HttpRequestBuilder"/> instance, allowing for method chaining.</returns>
-    public HttpRequestBuilder WithEndpoint(string path, string slug, params List<KeyValuePair<string, string>> queryParameters)
+    public HttpRequestBuilder WithEndpoint(string path, string slug, params IEnumerable<KeyValuePair<string, string>> queryParameters)
     {
         path = path.MakeUrlSafe('-', true);
         if (!string.IsNullOrWhiteSpace(path))
             path = $"{path.Trim('/')}/";
         slug = Uri.EscapeDataString(slug);
 
-        string parameterString = "";
-        if (queryParameters.Count != 0)
-        {
-            bool addAmpersand = false;
-            StringBuilder parameterStringBuilder = new('?');
-            foreach (KeyValuePair<string, string> parameter in queryParameters)
-            {
-                if (addAmpersand)
-                    parameterStringBuilder.Append('&');
-                parameterStringBuilder = parameterStringBuilder.Append(Uri.EscapeDataString(parameter.Key)).Append('=').Append(Uri.EscapeDataString(parameter.Value));
-                addAmpersand = true;
-            }
-            parameterString = parameterStringBuilder.ToString();
-        }
+        string parameterString = queryParameters.ToQueryString();
         _pathSlugAndParams = $"{path}{slug}{parameterString}";
         return this;
     }
