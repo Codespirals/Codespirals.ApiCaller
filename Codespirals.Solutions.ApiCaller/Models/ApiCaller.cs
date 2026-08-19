@@ -9,7 +9,7 @@ namespace Codespirals.Solutions.ApiCaller;
 /// </summary>
 public class ApiCaller
 {
-    private readonly ILogger<ApiCaller> _logger;
+    internal readonly ILogger<ApiCaller> _logger;
     private readonly HttpClient _httpClient;
     private string _group = "";
 
